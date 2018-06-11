@@ -1,0 +1,27 @@
+body {
+    padding: 5px;
+    margin: 5px;
+}
+html, body, #map {
+    height: 500px;
+    width: 700px;
+}
+
+h1 {
+    text-align: center;
+}
+
+div {
+    margin: auto;
+}
+
+button {
+    position: relative;
+}
+
+#playcontrols {
+    background-color: lightblue;
+    display: flex;
+  align-items: center;
+  justify-content: center;
+}
