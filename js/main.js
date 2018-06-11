@@ -1,5 +1,6 @@
 function runMain() {
     
+	//variable contains starter style options for the default layer style before the sequence styles are applied
     var geojsonMarkerOptions = {
         radius: 8,
         fillColor: "#ff7800",
@@ -9,6 +10,8 @@ function runMain() {
         fillOpacity: 0.8
     };
     
+	//globalish object which contains attributes referenced by multiple event bound functions.
+	//is essential for keeping track of the current step in sequence
     var settings = {
         animationPlaying : false,
         currentYear : 2010

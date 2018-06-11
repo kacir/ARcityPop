@@ -1,6 +1,9 @@
 body {
     padding: 5px;
     margin: 5px;
+	position: relative;
+	align-items: center;
+    justify-content: center;
 }
 html, body, #map {
     height: 500px;
@@ -13,6 +16,7 @@ h1 {
 
 div {
     margin: auto;
+	 position: relative;
 }
 
 button {
@@ -22,6 +26,6 @@ button {
 #playcontrols {
     background-color: lightblue;
     display: flex;
-  align-items: center;
-  justify-content: center;
+	align-items: center;
+	justify-content: center;
 }
