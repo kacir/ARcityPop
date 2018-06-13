@@ -14,7 +14,11 @@ function runMain() {
 	//is essential for keeping track of the current step in sequence
     var settings = {
         animationPlaying : false,
-        currentYear : 2010
+        currentYearIndex : 0,
+        currentFeild : "pop10_11",
+        fieldList : ["pop10_11" , "pop11_12" , "pop12_13" , "pop13_14" , "pop14_15" , "pop15_16" , "pop16_17"],
+        fieldLabel : ["2010 - 2011" , "2011 - 2012" , "2012 - 2013" , "2013 - 2014" , "2014 - 2015" , "2015 - 2016" , "2016 - 2017"]
+        
     };
     
     //returns style object for the feature given a particular population value
@@ -26,40 +30,21 @@ function runMain() {
             opacity : 0.8
         };
         
-        //switch statement for each of the individual cases
-        switch (true) {
-            case feature.properties["pop" + settings.currentYear] < 300:
-                style.radius = 1;
-                style.fillOpacity = 0.2;
-                style.opacity = 0.2;
-                break;
-            case feature.properties["pop" + settings.currentYear] < 1600:
-                style.radius = 3;
-                style.fillOpacity = 0.3;
-                style.opacity = 0.3;
-                break;
-            case feature.properties["pop" + settings.currentYear] < 8000:
-                style.radius = 5;
-                style.fillOpacity = 0.4;
-                style.opacity = 0.4;
-                break;
-            case feature.properties["pop" + settings.currentYear] < 40000:
-                style.radius = 7;
-                style.fillOpacity = 0.6;
-                style.opacity = 0.6;
-                break;
-            case feature.properties["pop" + settings.currentYear] > 40000:
-                style.radius = 9;
-                style.fillOpacity = 0.8;
-                style.opacity = 0.8;
-                break;
-            default:
-                console.log("failed to place in catagory");
-                break;
+        //set the color according to if the % is negitive positive or zero
+        if (feature.properties[settings.currentFeild] == 0) {
+            style.color = "#000000";
+            style.fillColor = "#000000";
+            style.radius = 2;
+        } else {
+            if (feature.properties[settings.currentFeild] > 0) {
+                style.color = "#006400";
+                style.fillColor = "#006400";
+            } else {
+                style.color = "#ff4500";
+                style.fillColor = "#ff4500";
+            }
+            style.radius = Math.abs(feature.properties[settings.currentFeild]) * 250;
         }
-        
-        style.radius = Math.sqrt(feature.properties["pop" + settings.currentYear] * 0.02 / Math.PI);
-        
         return style;
     }
     
@@ -92,15 +77,13 @@ function runMain() {
         popupText = "<h3>" + feature.properties.city_name + "</h3>" +
             "<table>" + 
             "<tr><th>Year</th> <th>Population</th></tr>" +
-            "<tr><td>2010</td> <td>" + feature.properties.pop2010.toLocaleString() + "</tr>" + 
-            "<tr><td>2011</td> <td>" + feature.properties.pop2011.toLocaleString() + "</tr>" + 
-            "<tr><td>2012</td> <td>" + feature.properties.pop2012.toLocaleString() + "</tr>" + 
-            "<tr><td>2013</td> <td>" + feature.properties.pop2013.toLocaleString() + "</tr>" + 
-            "<tr><td>2014</td> <td>" + feature.properties.pop2014.toLocaleString() + "</tr>" + 
-            "<tr><td>2015</td> <td>" + feature.properties.pop2015.toLocaleString() + "</tr>" + 
-            "<tr><td>2016</td> <td>" + feature.properties.pop2016.toLocaleString() + "</tr>" + 
-            "<tr><td>2017</td> <td>" + feature.properties.pop2017.toLocaleString() + "</tr>" + 
-            
+            "<tr><td>2010 - 2011</td> <td>" + feature.properties.pop10_11.toLocaleString() + "</tr>" + 
+            "<tr><td>2011 - 2012</td> <td>" + feature.properties.pop11_12.toLocaleString() + "</tr>" + 
+            "<tr><td>2012 - 2013</td> <td>" + feature.properties.pop12_13.toLocaleString() + "</tr>" + 
+            "<tr><td>2013 - 2014</td> <td>" + feature.properties.pop13_14.toLocaleString() + "</tr>" + 
+            "<tr><td>2014 - 2015</td> <td>" + feature.properties.pop14_15.toLocaleString() + "</tr>" + 
+            "<tr><td>2015 - 2016</td> <td>" + feature.properties.pop15_16.toLocaleString() + "</tr>" + 
+            "<tr><td>2016 - 2017</td> <td>" + feature.properties.pop16_17.toLocaleString() + "</tr>" + 
             "</table>";
         
         layer.bindPopup(popupText);
@@ -123,7 +106,7 @@ function runMain() {
     // method that we will use to update the control based on feature properties passed
     yearControl.update = function (props) {
 
-        this._div.innerHTML =  'Year: 2010';
+        this._div.innerHTML =  'Year: 2010-2011';
         this._div.style = "background-color : white; padding : 3px;"
     };
 
@@ -141,37 +124,30 @@ function runMain() {
         }
     });
     
+    function moveAnimation (increment) {
+        console.log("moving animation");
+        settings.currentYearIndex += increment;
+        if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldList.length - 1;}
+        if (settings.currentYearIndex > settings.fieldList.length) {settings.currentYearIndex = 0;}
+        
+        settings.currentYear = settings.fieldList[settings.currentYearIndex];
+        setting.currentFeild = settings.fieldList[settings.currentYearIndex];
+        
+        yearControl._div.innerHTML = settings.fieldLabel[settings.currentYearIndex];
+        $("#slider").attr("value" , settings.currentYearIndex);
+        jsonLayer.setStyle(animationStyle);
+    }
+    
     //bind function which launches animation over time
     setInterval( function () {
         if (settings.animationPlaying){
-            console.log("second");
-            settings.currentYear += 1;
-            if (settings.currentYear === 2018) {settings.currentYear = 2010;}
-            yearControl._div.innerHTML = "Year: " + settings.currentYear;
-            $("#slider").attr("value" , settings.currentYear);
-
-            jsonLayer.setStyle(animationStyle);
+            moveAnimation(1);
         }
     } , 1000);
     
     //bind function which steps animation over one step at a time
-    $("#forwardButton").click(function(){
-        settings.currentYear += 1;
-        if (settings.currentYear === 2018) {settings.currentYear = 2010;}
-        yearControl._div.innerHTML = "Year: " + settings.currentYear;
-        $("#slider").attr("value" , settings.currentYear);
-
-        jsonLayer.setStyle(animationStyle);
-    });
-    
-    $("#backButton").click(function(){
-        settings.currentYear -= 1;
-        if (settings.currentYear === 2009) {settings.currentYear = 2017;}
-        yearControl._div.innerHTML = "Year: " + settings.currentYear;
-        $("#slider").attr("value" , settings.currentYear);
-        
-        jsonLayer.setStyle(animationStyle);
-    })
+    $("#forwardButton").click(function(){moveAnimation(1);});
+    $("#backButton").click(function(){moveAnimation(-1);});
     
     
 }
