@@ -1,15 +1,5 @@
 function runMain() {
-    
-	//variable contains starter style options for the default layer style before the sequence styles are applied
-    var geojsonMarkerOptions = {
-        radius: 8,
-        fillColor: "#ff7800",
-        color: "#000",
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.8
-    };
-    
+       
 	//globalish object which contains attributes referenced by multiple event bound functions.
 	//is essential for keeping track of the current step in sequence
     var settings = {
@@ -52,7 +42,14 @@ function runMain() {
     var map = L.map('map').fitWorld();
     var jsonLayer = L.geoJSON(null, {onEachFeature : bindFeaturePopup, style : animationStyle,
         pointToLayer : function (feature, latlng) {
-            return L.circleMarker(latlng, geojsonMarkerOptions)
+            return L.circleMarker(latlng, {
+				radius: 8,
+				fillColor: "#ff7800",
+				color: "#000",
+				weight: 1,
+				opacity: 1,
+				fillOpacity: 0.8
+				})
             }
         }).addTo(map);//json layer that stores all of the raw point data
 
@@ -64,13 +61,13 @@ function runMain() {
     }).addTo(map);
 
     
-    //defining function that will be the callbackfunction to add gson data into the map
+    //defining function that will add data into the json layer after the layer has been formed
     function addJSONToMap(response) {
         jsonLayer.addData(JSON.parse(response));
         map.fitBounds(jsonLayer.getBounds());//zoom to maxium extent of layer which is Arkansas
     }
     
-    
+    //function is tied to the option object for the json layer created. function adds popups to each of the features
     function bindFeaturePopup (feature, layer) {
         var popupText;
         
@@ -89,31 +86,55 @@ function runMain() {
         layer.bindPopup(popupText);
     }
     
-    
+    //gets the city data from ajax and calls the method to start chain of adding data to map
     $.ajax("data/CITY.geojson" , {
         datatype : "json",
         success: addJSONToMap
-        }).fail(function() {alert("Unable to load data")});
+        }).fail(function() {alert("Unable to load data");});
     
+	
+	
+	
+	
+	//create a year label in the map
     var yearControl = L.control();
-
     yearControl.onAdd = function (map) {
         this._div = L.DomUtil.create('div', 'yearControl'); // create a div with a class "info"
         this.update();
         return this._div;
     };
-
     // method that we will use to update the control based on feature properties passed
     yearControl.update = function (props) {
 
         this._div.innerHTML =  'Year: 2010-2011';
         this._div.style = "background-color : white; padding : 3px;"
     };
-
     yearControl.addTo(map);
     
     
-    //define and bind function to play button to change the img and variable which determine if animation runs
+	
+    
+    //define function which changes animation advancement
+    function moveAnimation (increment) {
+		//advance the counter
+        console.log("moving animation");
+        settings.currentYearIndex += increment;
+        if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldList.length - 1;}
+        if (settings.currentYearIndex > settings.fieldList.length) {settings.currentYearIndex = 0;}
+        
+		//reset some of the values accordingly
+        settings.currentYear = settings.fieldList[settings.currentYearIndex];
+		console.log("the current year is " + settings.currentYear);
+        setting.currentFeild = settings.fieldList[settings.currentYearIndex];
+		console.log("the current field is " + setting.currentFeild);
+        
+		//perform changes to the UI
+        yearControl._div.innerHTML = settings.fieldLabel[settings.currentYearIndex];
+        $("#slider").attr("value" , settings.currentYearIndex);
+        jsonLayer.setStyle(animationStyle);
+    }
+    
+	//define and bind function to play button to change the img and variable which determine if animation runs
     $("#playButton").click(function() {
         if (settings.animationPlaying === true) {
             settings.animationPlaying = false;
@@ -123,21 +144,7 @@ function runMain() {
             this.innerHTML = "Pause";
         }
     });
-    
-    function moveAnimation (increment) {
-        console.log("moving animation");
-        settings.currentYearIndex += increment;
-        if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldList.length - 1;}
-        if (settings.currentYearIndex > settings.fieldList.length) {settings.currentYearIndex = 0;}
-        
-        settings.currentYear = settings.fieldList[settings.currentYearIndex];
-        setting.currentFeild = settings.fieldList[settings.currentYearIndex];
-        
-        yearControl._div.innerHTML = settings.fieldLabel[settings.currentYearIndex];
-        $("#slider").attr("value" , settings.currentYearIndex);
-        jsonLayer.setStyle(animationStyle);
-    }
-    
+	
     //bind function which launches animation over time
     setInterval( function () {
         if (settings.animationPlaying){
