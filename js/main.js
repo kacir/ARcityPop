@@ -21,37 +21,34 @@ function runMain() {
     function animationStyle (feature) {
         var style = {
             fillColor: "#ff7800",
-            color: "#000"
+            color: "#000",
+            fillOpacity : 0.5,
+            opacity : 0.8
         };
         
         //switch statement for each of the individual cases
         switch (true) {
             case feature.properties["pop" + settings.currentYear] < 300:
-                console.log("1 condition met");
                 style.radius = 1;
                 style.fillOpacity = 0.2;
                 style.opacity = 0.2;
                 break;
             case feature.properties["pop" + settings.currentYear] < 1600:
-                console.log("2 condition met");
                 style.radius = 3;
                 style.fillOpacity = 0.3;
                 style.opacity = 0.3;
                 break;
             case feature.properties["pop" + settings.currentYear] < 8000:
-                console.log("3 condition met");
                 style.radius = 5;
                 style.fillOpacity = 0.4;
                 style.opacity = 0.4;
                 break;
             case feature.properties["pop" + settings.currentYear] < 40000:
-                console.log("4 condition met");
                 style.radius = 7;
                 style.fillOpacity = 0.6;
                 style.opacity = 0.6;
                 break;
             case feature.properties["pop" + settings.currentYear] > 40000:
-                console.log("5 condition met");
                 style.radius = 9;
                 style.fillOpacity = 0.8;
                 style.opacity = 0.8;
@@ -60,6 +57,8 @@ function runMain() {
                 console.log("failed to place in catagory");
                 break;
         }
+        
+        style.radius = Math.sqrt(feature.properties["pop" + settings.currentYear] * 0.02 / Math.PI);
         
         return style;
     }
@@ -147,13 +146,33 @@ function runMain() {
         if (settings.animationPlaying){
             console.log("second");
             settings.currentYear += 1;
-            if (settings.currentYear === 2018) {settings.currentYear = 2010}
+            if (settings.currentYear === 2018) {settings.currentYear = 2010;}
             yearControl._div.innerHTML = "Year: " + settings.currentYear;
+            $("#slider").attr("value" , settings.currentYear);
+
             jsonLayer.setStyle(animationStyle);
         }
     } , 1000);
     
+    //bind function which steps animation over one step at a time
+    $("#forwardButton").click(function(){
+        settings.currentYear += 1;
+        if (settings.currentYear === 2018) {settings.currentYear = 2010;}
+        yearControl._div.innerHTML = "Year: " + settings.currentYear;
+        $("#slider").attr("value" , settings.currentYear);
 
+        jsonLayer.setStyle(animationStyle);
+    });
+    
+    $("#backButton").click(function(){
+        settings.currentYear -= 1;
+        if (settings.currentYear === 2009) {settings.currentYear = 2017;}
+        yearControl._div.innerHTML = "Year: " + settings.currentYear;
+        $("#slider").attr("value" , settings.currentYear);
+        
+        jsonLayer.setStyle(animationStyle);
+    })
+    
     
 }
 
