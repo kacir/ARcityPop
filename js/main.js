@@ -24,7 +24,7 @@ function runMain() {
         if (feature.properties[settings.currentFeild] == 0) {
             style.color = "#000000";
             style.fillColor = "#000000";
-            style.radius = 2;
+            style.radius = 1;
         } else {
             if (feature.properties[settings.currentFeild] > 0) {
                 style.color = "#006400";
@@ -33,7 +33,7 @@ function runMain() {
                 style.color = "#ff4500";
                 style.fillColor = "#ff4500";
             }
-            style.radius = Math.abs(feature.properties[settings.currentFeild]) * 250;
+            style.radius = Math.abs(feature.properties[settings.currentFeild]) * 150;
         }
         return style;
     }
@@ -74,13 +74,13 @@ function runMain() {
         popupText = "<h3>" + feature.properties.city_name + "</h3>" +
             "<table>" + 
             "<tr><th>Year</th> <th>Population</th></tr>" +
-            "<tr><td>2010 - 2011</td> <td>" + feature.properties.pop10_11.toLocaleString() + "</tr>" + 
-            "<tr><td>2011 - 2012</td> <td>" + feature.properties.pop11_12.toLocaleString() + "</tr>" + 
-            "<tr><td>2012 - 2013</td> <td>" + feature.properties.pop12_13.toLocaleString() + "</tr>" + 
-            "<tr><td>2013 - 2014</td> <td>" + feature.properties.pop13_14.toLocaleString() + "</tr>" + 
-            "<tr><td>2014 - 2015</td> <td>" + feature.properties.pop14_15.toLocaleString() + "</tr>" + 
-            "<tr><td>2015 - 2016</td> <td>" + feature.properties.pop15_16.toLocaleString() + "</tr>" + 
-            "<tr><td>2016 - 2017</td> <td>" + feature.properties.pop16_17.toLocaleString() + "</tr>" + 
+            "<tr><td>2010 - 2011</td> <td>" + Math.round(feature.properties.pop10_11 * 100) + "%</tr>" + 
+            "<tr><td>2011 - 2012</td> <td>" + Math.round(feature.properties.pop11_12 * 100) + "%</tr>" + 
+            "<tr><td>2012 - 2013</td> <td>" + Math.round(feature.properties.pop12_13 * 100) + "%</tr>" + 
+            "<tr><td>2013 - 2014</td> <td>" + Math.round(feature.properties.pop13_14 * 100) + "%</tr>" + 
+            "<tr><td>2014 - 2015</td> <td>" + Math.round(feature.properties.pop14_15 * 100) + "%</tr>" + 
+            "<tr><td>2015 - 2016</td> <td>" + Math.round(feature.properties.pop15_16 * 100) + "%</tr>" + 
+            "<tr><td>2016 - 2017</td> <td>" + Math.round(feature.properties.pop16_17 * 100) + "%</tr>" + 
             "</table>";
         
         layer.bindPopup(popupText);
@@ -107,7 +107,8 @@ function runMain() {
     yearControl.update = function (props) {
 
         this._div.innerHTML =  'Year: 2010-2011';
-        this._div.style = "background-color : white; padding : 3px;"
+        this._div.style = "background-color : white; padding : 3px;";
+        this._div.title = "The Current Year shown in map";
     };
     yearControl.addTo(map);
     
@@ -120,13 +121,13 @@ function runMain() {
         console.log("moving animation");
         settings.currentYearIndex += increment;
         if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldList.length - 1;}
-        if (settings.currentYearIndex > settings.fieldList.length) {settings.currentYearIndex = 0;}
+        if (settings.currentYearIndex > settings.fieldList.length -1) {settings.currentYearIndex = 0;}
         
 		//reset some of the values accordingly
         settings.currentYear = settings.fieldList[settings.currentYearIndex];
 		console.log("the current year is " + settings.currentYear);
-        setting.currentFeild = settings.fieldList[settings.currentYearIndex];
-		console.log("the current field is " + setting.currentFeild);
+        settings.currentFeild = settings.fieldList[settings.currentYearIndex];
+		console.log("the current field is " + settings.currentFeild);
         
 		//perform changes to the UI
         yearControl._div.innerHTML = settings.fieldLabel[settings.currentYearIndex];
@@ -138,7 +139,7 @@ function runMain() {
     $("#playButton").click(function() {
         if (settings.animationPlaying === true) {
             settings.animationPlaying = false;
-            this.innerHTML = "Play";
+            this.innerHTML = '<img width="10" src="img/play.png"/>';
         } else {
             settings.animationPlaying = true;
             this.innerHTML = "Pause";
@@ -150,11 +151,17 @@ function runMain() {
         if (settings.animationPlaying){
             moveAnimation(1);
         }
-    } , 1000);
+    } , 1500);
     
     //bind function which steps animation over one step at a time
-    $("#forwardButton").click(function(){moveAnimation(1);});
-    $("#backButton").click(function(){moveAnimation(-1);});
+    $("#forwardButton").click(function(){
+        settings.animationPlaying = false;
+        moveAnimation(1);
+    });
+    $("#backButton").click(function(){
+        settings.animationPlaying = false;
+        moveAnimation(-1);
+    });
     
     
 }
