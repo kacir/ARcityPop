@@ -20,11 +20,15 @@ function runMain() {
             opacity : 0.8
         };
         
+        //create a factor to increase symbol size as you are zooming in
+        console.log(map.getZoom());
+        var scaleFactor = map.getZoom() - 7;
+        
         //set the color according to if the % is negitive positive or zero
         if (feature.properties[settings.currentFeild] == 0) {
-            style.color = "#000000";
-            style.fillColor = "#000000";
-            style.radius = 1;
+            style.color = "#2F4F4F";
+            style.fillColor = "#2F4F4F";
+            style.radius = 1 * scaleFactor;
         } else {
             if (feature.properties[settings.currentFeild] > 0) {
                 style.color = "#006400";
@@ -33,13 +37,15 @@ function runMain() {
                 style.color = "#ff4500";
                 style.fillColor = "#ff4500";
             }
-            style.radius = Math.abs(feature.properties[settings.currentFeild]) * 150;
+            
+
+            style.radius = Math.abs(feature.properties[settings.currentFeild]) * 225 * scaleFactor;
         }
         return style;
     }
     
     
-    var map = L.map('map').fitWorld();
+    var map = L.map('map', {minZoom : 7}).fitWorld();
     var jsonLayer = L.geoJSON(null, {onEachFeature : bindFeaturePopup, style : animationStyle,
         pointToLayer : function (feature, latlng) {
             return L.circleMarker(latlng, {
@@ -52,13 +58,15 @@ function runMain() {
 				})
             }
         }).addTo(map);//json layer that stores all of the raw point data
+    map.on('zoomstart zoom zoomend', function () {jsonLayer.setStyle(animationStyle);})
 
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+
+    L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, <a href="https://www.census.gov/">US Census Bureau</a>, <a href="https://gis.arkansas.gov/">Arkansas State GIS Office</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 18 ,
-        id: 'mapbox.streets',
-        accessToken : 'pk.eyJ1Ijoia2FjaXIiLCJhIjoiY2l4eHlnZzVnMDA0bjJxcGl5aTVsempmayJ9.lsLs8ZMU2chV2SOil7yMRQ'
+        maxZoom: 18
+
     }).addTo(map);
+
 
     
     //defining function that will add data into the json layer after the layer has been formed
@@ -92,7 +100,8 @@ function runMain() {
         success: addJSONToMap
         }).fail(function() {alert("Unable to load data");});
     
-	
+    //reset symbology after zoom levels set correctly
+    jsonLayer.setStyle(animationStyle);
 	
 	
 	
@@ -107,7 +116,6 @@ function runMain() {
     yearControl.update = function (props) {
 
         this._div.innerHTML =  'Year: 2010-2011';
-        this._div.style = "background-color : white; padding : 3px;";
         this._div.title = "The Current Year shown in map";
     };
     yearControl.addTo(map);

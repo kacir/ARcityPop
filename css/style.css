@@ -4,6 +4,8 @@ body {
 	position: relative;
 	align-items: center;
     justify-content: center;
+    
+    background-color: black;
 }
 html, body, #map {
     height: 500px;
@@ -12,6 +14,7 @@ html, body, #map {
 
 h1 {
     text-align: center;
+    color: slategrey;
 }
 
 div {
@@ -24,19 +27,22 @@ button {
 }
 
 #playcontrols {
-    background-color: lightblue;
+    background-color: dimgray;
     display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
-input[type="range"]::-moz-range-track {
-  padding: 0 10px;
-  background: repeating-linear-gradient(to right, 
-    #ccc, 
-    #ccc 10%, 
-    #000 10%, 
-    #000 11%, 
-    #ccc 11%, 
-    #ccc 20%);
+
+.leaflet-bar a.leaflet-disabled {
+    background-color: dimgrey;
+}
+
+.leaflet-bar a, .leaflet-bar a:hover {
+    background-color: darkgrey;
+}
+
+div.yearControl {
+    background-color: grey;
+    padding: 4px;
 }
