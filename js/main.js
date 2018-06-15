@@ -21,8 +21,7 @@ function runMain() {
         };
         
         //create a factor to increase symbol size as you are zooming in
-        console.log(map.getZoom());
-        var scaleFactor = map.getZoom() - 7;
+        var scaleFactor = map.getZoom() - 6;
         
         //set the color according to if the % is negitive positive or zero
         if (feature.properties[settings.currentFeild] == 0) {
@@ -74,6 +73,8 @@ function runMain() {
         jsonLayer.addData(JSON.parse(response));
         map.fitBounds(jsonLayer.getBounds());//zoom to maxium extent of layer which is Arkansas
     }
+    
+    
     
     //function is tied to the option object for the json layer created. function adds popups to each of the features
     function bindFeaturePopup (feature, layer) {
