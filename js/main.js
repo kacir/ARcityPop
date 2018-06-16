@@ -72,7 +72,6 @@ function runMain() {
 
 
     L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '<a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, <a href="https://www.census.gov/">US Census Bureau</a>, <a href="https://gis.arkansas.gov/">Arkansas State GIS Office</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
         maxZoom: 18
 
     }).addTo(map);
@@ -135,6 +134,21 @@ function runMain() {
         this._div.title = "The Current Year shown in map";
     };
     yearControl.addTo(map);
+    
+    
+    //create a control for the legend
+    var legendControl = L.control();
+    legendControl.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'legend'); // create a div with a class "info"
+
+        this.update();
+        return this._div;
+    };
+    legendControl.update = function (props) {
+        this._div.title = "Info Represents feature in map";
+        this._div.innerHTML = "<h3>Legend</h3> <ul><li>Growing City<div class='circle' id='growing' /></li><li>Shrinking City <div class='circle' id='shrinking' /></li><li>No population change <div class='circle' id='nochange' /></li></ul><p>Note the larger the circle the larger the % change</p>";
+    }
+    legendControl.addTo(map);
     
     
 	function disableButtonApply () {
