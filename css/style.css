@@ -51,3 +51,7 @@ div.yearControl {
     background-color: grey;
     padding: 4px;
 }
+
+input {
+    width: 80%;
+}

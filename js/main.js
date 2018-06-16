@@ -125,12 +125,13 @@ function runMain() {
 	
     
     //define function which changes animation advancement
-    function moveAnimation (increment) {
+    function moveAnimation (increment, eventFromSlider = false) {
 		//advance the counter
         console.log("moving animation");
         settings.currentYearIndex += increment;
         if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldList.length - 1;}
         if (settings.currentYearIndex > settings.fieldList.length -1) {settings.currentYearIndex = 0;}
+        console.log("current year index is " + settings.currentYearIndex);
         
 		//reset some of the values accordingly
         settings.currentYear = settings.fieldList[settings.currentYearIndex];
@@ -138,9 +139,13 @@ function runMain() {
         settings.currentFeild = settings.fieldList[settings.currentYearIndex];
 		console.log("the current field is " + settings.currentFeild);
         
-		//perform changes to the UI
+		//perform changes to the UI @
         yearControl._div.innerHTML = settings.fieldLabel[settings.currentYearIndex];
-        $("#slider").attr("value" , settings.currentYearIndex);
+        if (eventFromSlider == false) {
+            $("input").val(settings.currentYearIndex).change();
+            console.log("slider value changed");
+        };//prevents method from being called again by change slider event
+        
         jsonLayer.setStyle(animationStyle);
     }
     
@@ -171,6 +176,21 @@ function runMain() {
         settings.animationPlaying = false;
         moveAnimation(-1);
     });
+    
+    /*
+    //add event to slider so it can move the animation forward @
+    $("input").on("change", function (e){
+        console.log("change slider event fired");
+        var sliderValue = Number(this.getAttribute("value"));
+        console.log(sliderValue);
+        if (sliderValue != settings.currentYearIndex) {
+            console.log("year index does not match, changing now")
+            settings.currentYearIndex = sliderValue;
+            moveAnimation(0, true);
+        }
+        
+        
+    });*/
     
     
 }
