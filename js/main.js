@@ -43,8 +43,19 @@ function runMain() {
         return style;
     }
     
+    var mapOuterBounds = "";
+    $.ajax("data/BoundingBox.geojson" , {
+        datatype : "json",
+        success: function (response){
+            console.log("starting to make bounds");
+            mapOuterBounds = L.geoJSON(JSON.parse(response)).getBounds();
+            console.log("bounds have been made");
+            console.log(mapOuterBounds);
+        }
+        }).fail(function() {alert("Unable to load bouding data");});
     
-    var map = L.map('map', {minZoom : 7}).fitWorld();
+    var map = L.map('map', {minZoom : 6, MaxBounds : mapOuterBounds, maxBoundsViscosity : 1.0}).fitWorld();
+    
     var jsonLayer = L.geoJSON(null, {onEachFeature : bindFeaturePopup, style : animationStyle,
         pointToLayer : function (feature, latlng) {
             return L.circleMarker(latlng, {
@@ -61,11 +72,15 @@ function runMain() {
 
 
     L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, <a href="https://www.census.gov/">US Census Bureau</a>, <a href="https://gis.arkansas.gov/">Arkansas State GIS Office</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        attribution: '<a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, <a href="https://www.census.gov/">US Census Bureau</a>, <a href="https://gis.arkansas.gov/">Arkansas State GIS Office</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
         maxZoom: 18
 
     }).addTo(map);
-
+    
+    //prevents the map from zoomout outside of the maximum extent
+    map.on('drag', function() {
+        map.panInsideBounds(mapOuterBounds, { animate: false });
+        });
 
     
     //defining function that will add data into the json layer after the layer has been formed
@@ -122,7 +137,26 @@ function runMain() {
     yearControl.addTo(map);
     
     
-	
+	function disableButtonApply () {
+        console.log("Disable Button function Triggered!");
+        if (settings.currentYearIndex === 0){
+            $("#backButton").attr("disabled" , "");
+        } else {
+            if ($("#backButton")[0].hasAttribute("disabled")) {
+                $("#backButton").removeAttr("disabled");
+            }
+        }
+        
+        if (settings.currentYearIndex === settings.fieldList.length -1) {
+            $("#forwardButton").attr("disabled" , "");
+            $("#playButton img").attr("src", "img/replay.png").attr("width" , "12");
+        } else {
+            $("#playButton img").attr("src", "img/play.png").attr("width" , "10");
+            if ($("#forwardButton")[0].hasAttribute("disabled")) {
+                $("#forwardButton").removeAttr("disabled");
+            }
+        }
+    }
     
     //define function which changes animation advancement
     function moveAnimation (increment) {
@@ -131,13 +165,10 @@ function runMain() {
         settings.currentYearIndex += increment;
         if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldList.length - 1;}
         if (settings.currentYearIndex > settings.fieldList.length -1) {settings.currentYearIndex = 0;}
-        console.log("current year index is " + settings.currentYearIndex);
         
 		//reset some of the values accordingly
         settings.currentYear = settings.fieldList[settings.currentYearIndex];
-		console.log("the current year is " + settings.currentYear);
         settings.currentFeild = settings.fieldList[settings.currentYearIndex];
-		console.log("the current field is " + settings.currentFeild);
         
 		//perform changes to the UI @
         var slider = $("#slider");
@@ -145,9 +176,7 @@ function runMain() {
         slider.attr("value", settings.currentYearIndex);
         slider.val(settings.currentYearIndex).change();
         yearControl._div.innerHTML = "Year : " + settings.fieldLabel[settings.currentYearIndex];
-        console.log("slider value changed");
-        
-        
+
         jsonLayer.setStyle(animationStyle);
     }
     
@@ -158,7 +187,7 @@ function runMain() {
             this.innerHTML = '<img width="10" src="img/play.png"/>';
         } else {
             settings.animationPlaying = true;
-            this.innerHTML = "Pause";
+            this.innerHTML = "<img src='img/pause.png' width='12' />";
         }
     });
 	
@@ -171,12 +200,18 @@ function runMain() {
     
     //bind function which steps animation over one step at a time
     $("#forwardButton").click(function(){
-        settings.animationPlaying = false;
-        moveAnimation(1);
+        if (!this.hasAttribute("disabled")) {
+            settings.animationPlaying = false;
+            moveAnimation(1);
+            disableButtonApply();
+        }
     });
     $("#backButton").click(function(){
-        settings.animationPlaying = false;
-        moveAnimation(-1);
+        if (!this.hasAttribute("disabled")) {
+            settings.animationPlaying = false;
+            moveAnimation(-1);
+            disableButtonApply();
+        }
     });
     
     
@@ -188,18 +223,16 @@ function runMain() {
         if (sliderValue != settings.currentYearIndex) {
             
             settings.currentYearIndex = sliderValue;
-            console.log("year index does not match, changing now");
             settings.currentYear = settings.fieldList[settings.currentYearIndex];
             settings.currentFeild = settings.fieldList[settings.currentYearIndex];
             yearControl._div.innerHTML = "Year : " + settings.fieldLabel[settings.currentYearIndex];
             jsonLayer.setStyle(animationStyle);
 
         } else {
-            console.log("value does not differ!");
             console.log(sliderValue);
             console.log(settings.currentYearIndex);
         }
-        
+        disableButtonApply();
         
     });
     
