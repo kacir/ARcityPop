@@ -125,7 +125,7 @@ function runMain() {
 	
     
     //define function which changes animation advancement
-    function moveAnimation (increment, eventFromSlider = false) {
+    function moveAnimation (increment) {
 		//advance the counter
         console.log("moving animation");
         settings.currentYearIndex += increment;
@@ -140,11 +140,13 @@ function runMain() {
 		console.log("the current field is " + settings.currentFeild);
         
 		//perform changes to the UI @
-        yearControl._div.innerHTML = settings.fieldLabel[settings.currentYearIndex];
-        if (eventFromSlider == false) {
-            $("input").val(settings.currentYearIndex).change();
-            console.log("slider value changed");
-        };//prevents method from being called again by change slider event
+        var slider = $("#slider");
+        slider.val(settings.currentYearIndex).change();
+        slider.attr("value", settings.currentYearIndex);
+        slider.val(settings.currentYearIndex).change();
+        yearControl._div.innerHTML = "Year : " + settings.fieldLabel[settings.currentYearIndex];
+        console.log("slider value changed");
+        
         
         jsonLayer.setStyle(animationStyle);
     }
@@ -177,20 +179,29 @@ function runMain() {
         moveAnimation(-1);
     });
     
-    /*
+    
     //add event to slider so it can move the animation forward @
-    $("input").on("change", function (e){
+    $("#slider").on("input", function (e){
         console.log("change slider event fired");
-        var sliderValue = Number(this.getAttribute("value"));
+        var sliderValue = Number(this.value);
         console.log(sliderValue);
         if (sliderValue != settings.currentYearIndex) {
-            console.log("year index does not match, changing now")
+            
             settings.currentYearIndex = sliderValue;
-            moveAnimation(0, true);
+            console.log("year index does not match, changing now");
+            settings.currentYear = settings.fieldList[settings.currentYearIndex];
+            settings.currentFeild = settings.fieldList[settings.currentYearIndex];
+            yearControl._div.innerHTML = "Year : " + settings.fieldLabel[settings.currentYearIndex];
+            jsonLayer.setStyle(animationStyle);
+
+        } else {
+            console.log("value does not differ!");
+            console.log(sliderValue);
+            console.log(settings.currentYearIndex);
         }
         
         
-    });*/
+    });
     
     
 }
