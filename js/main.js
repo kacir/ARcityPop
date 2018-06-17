@@ -29,12 +29,13 @@ function runMain() {
             style.fillColor = "#2F4F4F";
             style.radius = 1 * scaleFactor;
         } else {
+            //set color to green if the more than 1
             if (feature.properties[settings.currentFeild] > 0) {
                 style.color = "#006400";
                 style.fillColor = "#006400";
             } else {
-                style.color = "#ff4500";
-                style.fillColor = "#ff4500";
+                style.color = "red";
+                style.fillColor = "red";
             }
             
 

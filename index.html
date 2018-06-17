@@ -9,6 +9,7 @@
 
 		<!--put your external stylesheet links here-->
         <link rel="stylesheet" href="lib/leaflet.css"/>
+        <link rel="stylesheet" href="css/bootstrap.css"/>
         <link rel="stylesheet" href="css/style.css">
         
 
@@ -16,26 +17,36 @@
 	</head>
 
 	<body>
-		<h1>Arkansas Municipal Growth Over Time and Space</h1>
-		<!--you can also use this space for internal scripts or stylesheets;
-		place these within <script> or <style> tags-->
-        <div id="map"></div>
+        <div class="container-fluid">
+            <div class="row">
+                
+                <div class="col-12 col-md-4 col-xl-3" id="sidepanel">
+                    <h1 title="Name of the map">Arkansas Municipal Growth Over Time and Space</h1>
+                    <p title="Description of population changes">Arkansas has seen a general trend over the past several decades. Rural areas are depopulating, and urban areas are gaining population. Most of southern Arkansas and eastern Arkansas is rural. Central Arkansas, northwest Arkansas are urban. There is also a small pocket of urban area around Jonesboro in northeast Arkansas. </p>
+                </div>
+                <div class="col-12 col-md-8 col-xl-9" id="map"></div>
+            </div>
         
-        <div id="playcontrols">
+            <div class="row justify-content-center" id="playcontrols">
 			
-            <div id="buttonsGroup">
-				<button title="Click to Go back one year" id="backButton" disabled="disabled"><img width="8" src="img/forward.png" style="-webkit-transform: scaleX(-1); transform: scaleX(-1);"/></button>
-				<button title="Click to Play Map Animation" id="playButton"><img width="10" src="img/play.png"/></button>
-				<button title="Click to advance by one year" id="forwardButton" ><img src="img/forward.png" width="8"></button>
-			</div>
-			<input type="range" value="0" min="0" max="6" step="1" id="slider" title="drag slider to view different points in time"/>
-            
-		</div>
-        
+                <div class="col-5 col-sm-3 col-md-2 col-xl-1" id="buttonsGroup">
+                    <button title="Click to Go back one year" id="backButton" disabled="disabled"><img width="8" src="img/forward.png" style="-webkit-transform: scaleX(-1); transform: scaleX(-1);"/></button>
+                    <button title="Click to Play Map Animation" id="playButton"><img width="10" src="img/play.png"/></button>
+                    <button title="Click to advance by one year" id="forwardButton" ><img src="img/forward.png" width="8"></button>
+			     </div>
+			     
+                <div class="col-7 col-sm-9 col-md-10 col-xl-11" >
+                <input type="range" value="0" min="0" max="6" step="1" id="slider" title="drag slider to view different points in time"/>
+                </div>
+		  </div>
+        </div>
+        <br/>
+        <footer>animation control buttons provided by the <a href="https://thenounproject.com">Noun project</a>. The contributors are as follows, forward by creative outlet, pause by amantaka, play by Joms, and replay by Adrien Coquet</footer>
 	</body>
     
             <!--put your external script links here-->
         <script type="text/javascript" src="lib/jquery-3.3.1.js"></script>
         <script type="text/javascript" src="lib/leaflet.js"></script>
+        <script type="text/javascript" src="lib/bootstrap.js"></script>
 		<script type="text/javascript" src="js/main.js"></script>
 </html>

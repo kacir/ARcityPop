@@ -21,15 +21,22 @@ html, body {
 h1 {
     text-align: center;
     color: slategrey;
+    font-size: 25px;
 }
 
 h3 {
     text-align: center;
+    font-size: 20px;
 }
 
 div {
     margin: auto;
 	 position: relative;
+}
+
+footer {
+    font-size: 10px;
+    padding-bottom: 25px;
 }
 
 button {
@@ -100,6 +107,10 @@ li {
 p {
     padding-left: 8px;
     padding-right: 8px;
+}
+
+#sidepanel p{
+    text-indent: 30px;
 }
 
 div.leaflet-popup-content-wrapper {
