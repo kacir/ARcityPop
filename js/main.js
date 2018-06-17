@@ -44,7 +44,11 @@ function runMain() {
         return style;
     }
     
-    var mapOuterBounds = "";
+    
+    
+    //define layers that will be shown in the map
+    
+    var mapOuterBounds = "placeholder";
     $.ajax("data/BoundingBox.geojson" , {
         datatype : "json",
         success: function (response){
@@ -53,9 +57,51 @@ function runMain() {
             console.log("bounds have been made");
             console.log(mapOuterBounds);
         }
-        }).fail(function() {alert("Unable to load bouding data");});
+    }).fail(function() {alert("Unable to load bouding data");});
     
+    var counties = L.geoJSON(null);
+    $.ajax("data/COUNTIES.geojson" , {
+        datatype : "json",
+        success : function (response) {
+            console.log("making Counties");
+            counties.addData(JSON.parse(response));
+        }
+    }).fail(function() {alert("unable to load counties data")});
+    
+    var congressional = L.geoJSON(null);
+    $.ajax("data/CONGRESSIONAL.geojson" , {
+        datatype : "json",
+        success : function (response) {
+            console.log("making Congressional districts");
+            congressional.addData(JSON.parse(response));
+        }
+    }).fail(function() {alert("unable to load congressional districts data")});
+    
+    var house = L.geoJSON(null);
+    $.ajax("data/AR_HOUSE.geojson" , {
+        datatype : "json",
+        success : function (response) {
+            console.log("making AR House Districts");
+            house.addData(JSON.parse(response));
+        }
+    }).fail(function() {alert("unable to load AR House districts data")});
+    
+    var senate = L.geoJSON(null);
+    $.ajax("data/AR_SENATE.geojson" , {
+        datatype : "json",
+        success : function (response) {
+            console.log("making AR Senate Districts");
+            senate.addData(JSON.parse(response));
+        }
+    }).fail(function() {alert("unable to load AR Senate districts data")});
+    
+    var overlayMaps = {"County" : counties, "Congressional Dist" : congressional, "House Dist" : house , "Senate Dist" : senate};
+    
+                       
+                       
     var map = L.map('map', {minZoom : 6, MaxBounds : mapOuterBounds, maxBoundsViscosity : 1.0}).fitWorld();
+    
+    L.control.layers(null, overlayMaps).addTo(map);
     
     var jsonLayer = L.geoJSON(null, {onEachFeature : bindFeaturePopup, style : animationStyle,
         pointToLayer : function (feature, latlng) {
@@ -76,6 +122,8 @@ function runMain() {
         maxZoom: 18
 
     }).addTo(map);
+    
+
     
     //prevents the map from zoomout outside of the maximum extent
     map.on('drag', function() {
