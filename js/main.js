@@ -299,6 +299,24 @@ function runMain() {
         
     });
     
+    //make the animation move according to keystrokes
+    document.addEventListener("keydown" , function(event) {
+        switch (event.key){
+            case "ArrowRight":
+                settings.animationPlaying = false;
+                moveAnimation(1);
+                disableButtonApply();
+                event.preventDefault()
+                break;
+                
+            case "ArrowLeft":
+                settings.animationPlaying = false;
+                moveAnimation(-1);
+                disableButtonApply();
+                event.preventDefault()
+                break;
+        }
+    })
     
 }
 
