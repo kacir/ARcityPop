@@ -1,33 +1,43 @@
 function runMain() {
        
-	//globalish object which contains attributes referenced by multiple event bound functions.
-	//is essential for keeping track of the current step in sequence
+	//globalish object which contains attributes and methods used to react to events in the DOM.
     var settings = {
-        animationPlaying : false,
-        currentYearIndex : 0,
-        currentFeild : "pop10_11",
-        fieldList : ["pop10_11" , "pop11_12" , "pop12_13" , "pop13_14" , "pop14_15" , "pop15_16" , "pop16_17"],
-        fieldLabel : ["2010" , "2011" , "2012" , "2013" , "2014" , "2015" , "2016"],
+        animationPlaying : false,//indicates if the play button is active so the animation can step forward overtime
+        currentYearIndex : 0,//the index position in the list of the current point in time shown on map
+        currentFieldCity : "pop10_11",//the field name inside of the cities layer that corresponds to the current year.
+        currentFieldCounty : "perCh2010",//the field name inside of the counties layer that corresponds to the current year
+        fieldListCity : ["pop10_11" , "pop11_12" , "pop12_13" , "pop13_14" , "pop14_15" , "pop15_16" , "pop16_17"],//the field list of all relevent year related field in cities layer
+        fieldListCounty : ["perCh2010" ,"perCh2011", "perCh2012", "perCh2013", "perCh2014", "perCh2015", "perCh2016"],
+        fieldLabel : ["2010" , "2011" , "2012" , "2013" , "2014" , "2015" , "2016"],//list of year labels that will be shown to the user in the year div element.
         
+        //method changes the index for the current year shown in the map. This is a general method 
+        //which takes care of ui and property related actions which all UI elements need to change
+        //when the year changes for the map
         changeIndex :  function (index) {
             //method sets changes internal properties which change when the index year is changed
             settings.currentYearIndex = index;
             
             //tests to prevent index from going out of range
-            if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldList.length - 1;}
-            if (settings.currentYearIndex > settings.fieldList.length -1) {settings.currentYearIndex = 0;}
-        
-            settings.currentFeild = settings.fieldList[index];
+            if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldListCity.length - 1;}
+            if (settings.currentYearIndex > settings.fieldListCity.length -1) {settings.currentYearIndex = 0;}
+            
+            //makes it eaier to set the year information in the year div
+            settings.currentFieldCity = settings.fieldListCity[index];
+            settings.currentFieldCounty = settings.fieldListCounty[index];
             settings.label = "Year: "+ settings.fieldLabel[index];
             
-            //setts UI elements according to index status
-            yearControl.html(settings.label);//changes the label shown in the video thing
+            //sets UI elements according to index status
+            yearControl.html(settings.label);//changes the label shown in year div
             settings.disableButtons();//disable or enable certain buttons based on what the index is
-            cityLayer.setStyle(animationStyleCity);//refresh the style of the map
+            cityLayer.setStyle(animationStyleCity);//refresh the style of the map to reflect the current most year
+            counties.setStyle(animationStyleCounty);
+            
             return settings;
         },
         
+        //disables or enables the back and forward buttons depend on if the current year is the last or first year
         disableButtons : function () {
+            //if the index is 0 disable the button, otherwise leave it enabled
             console.log("Disable Button function Triggered!");
             if (settings.currentYearIndex === 0){
                 $("#backButton").attr("disabled" , "");
@@ -37,7 +47,8 @@ function runMain() {
                 }
             }
             
-            if (settings.currentYearIndex === settings.fieldList.length -1) {
+            //if the last year is the current year disable the forward button and chase the playbutton into a replay button
+            if (settings.currentYearIndex === settings.fieldListCity.length -1) {
                 $("#forwardButton").attr("disabled" , "");
                 settings.forcedPause();
                 $("#playButton")[0].innerHTML = '<img width="10" src="img/replay.png">';
@@ -51,11 +62,15 @@ function runMain() {
             }
         },
         
+        //plays a click sounds. used by several methods tied to buttons
         playSound :  function () {
             $("#clicksound")[0].play();
             return settings;
         },
         
+        //whenever the animation moves via arrow keystrokes or arrow buttons the
+        //slider needs to move too. This method changes the slider position to the
+        //current year index
         moveSlider : function () {
             var slider = $("#slider");
             slider.val(settings.currentYearIndex).change();
@@ -64,6 +79,7 @@ function runMain() {
             yearControl.html("Year : " + settings.fieldLabel[settings.currentYearIndex]);
         },
         
+        //method is tied to both forward button and arrow key forward. advances animation forward by one year
         advanceAnimationForward : function () {
             if (!$("#forwardButton")[0].hasAttribute("disabled")) {
                 settings.playSound();
@@ -73,6 +89,7 @@ function runMain() {
             }
         },
         
+        //mehtod is tied to both backward button and backward arrow key. adances the animation backward by one year
         advanceAnimationBackward : function () {
             if (!$("#backButton")[0].hasAttribute("disabled")) {
                 settings.playSound();
@@ -82,6 +99,8 @@ function runMain() {
             }
         },
         
+        //method is called when play button is pressed. It changes the animation status and changes the button icon
+        //to reflect the most current state.
         playPause : function () {
             settings.playSound();
             if (settings.animationPlaying == true) {
@@ -93,6 +112,8 @@ function runMain() {
             }
         },
         
+        //method called when backward or forward action is called. it prevents the playing animation to
+        //advance automatically
         forcedPause : function () {
             settings.animationPlaying = false;
             $("#playButton")[0].innerHTML = '<img width="10" src="img/play.png"/>';
@@ -122,13 +143,13 @@ function runMain() {
         var scaleFactor = map.getZoom() - 6;
         
         //set the color according to if the % is negitive positive or zero
-        if (feature.properties[settings.currentFeild] == 0) {
+        if (feature.properties[settings.currentFieldCity] == 0) {
             style.color = "#2F4F4F";
             style.fillColor = "#2F4F4F";
             style.radius = 1 * scaleFactor;
         } else {
             //set color to green if the more than 1
-            if (feature.properties[settings.currentFeild] > 0) {
+            if (feature.properties[settings.currentFieldCity] > 0) {
                 style.color = "#006400";
                 style.fillColor = "#006400";
             } else {
@@ -137,7 +158,7 @@ function runMain() {
             }
             
 
-            style.radius = Math.abs(feature.properties[settings.currentFeild]) * 225 * scaleFactor;
+            style.radius = Math.abs(feature.properties[settings.currentFieldCity]) * 225 * scaleFactor;
         }
         return style;
     }
@@ -146,18 +167,41 @@ function runMain() {
     function animationStyleCounty (feature) {
         var style = {
             fillColor : "#FFFF00",
-            color: "#FFFF00"
+            color: "#FFFF00",
+            opacity : 0.95
         };
         
-        //try and use opacity the first time to set growth information
+        if (settings.currentFieldCounty == 'perCh2016') {
+            style.opacity = 0;
+            style.fillColor = 'none';
+            return style;
+        }
         
+        var percentChange = Number(feature.properties[settings.currentFieldCounty]);
+        
+        //counties with no population change get a value of zero
+        if (percentChange == 0) {
+            style.opacity = 0;
+            style.fillColor = 'none';
+        } else {
+            if (percentChange > 0){
+                style.fillColor = "green";
+                style.color = "green";
+            } else {
+                style.fillColor = "red";
+                style.color = "red";
+            }
+            
+            
+        }
         
         return style;
     }
     
     
 
-    //load a bounding box dataset which decides the maximum panning of the map.
+    //load a bounding box dataset which decides the maximum panning area of the map.
+    //it helps prevent the user from getting lost.
     var mapOuterBounds = "placeholder";
     $.ajax("data/BoundingBox.geojson" , {
         datatype : "json",
@@ -168,7 +212,7 @@ function runMain() {
         }
     }).fail(function() {alert("Unable to load bouding data");});
     
-    //define layers that will be shown in the map
+    //generate the layer object for the counties dataset
     var counties = L.geoJSON(null , 
         {style : animationStyleCounty, 
             onEachFeature : function (feature, layer) {
@@ -178,7 +222,7 @@ function runMain() {
         }
     );
     
-    //load the data from the geojson file into the geojson layer
+    //load the counties data into the counties layer
     $.ajax("data/COUNTIES.geojson" , {
         datatype : "json",
         success : function (response) {
@@ -192,9 +236,9 @@ function runMain() {
     //create the map object that will display everything                   
     var map = L.map('map', {minZoom : 6 , maxZoom : 12 }).fitWorld();
     
-    //add a legend control the map
-    L.control.layers(null, {"County" : counties}).addTo(map);
+
     
+    //generate an empty layer for the city data to sit in.
     var cityLayer = L.geoJSON(null, {onEachFeature : bindFeaturePopup, style : animationStyleCity,
         pointToLayer : function (feature, latlng) {
             return L.circleMarker(latlng, {
@@ -207,18 +251,22 @@ function runMain() {
 				})
             }
         }).addTo(map);//json layer that stores all of the raw point data
+    
+    //add a legend control the map
+    L.control.layers(null, {"City" : cityLayer , "County" : counties}).addTo(map);
+    
+    //whenever the map zooms the city layer symbology will be reset so the symbel actually get larger as the user zooms in
     map.on('zoomstart zoom zoomend', function () {cityLayer.setStyle(animationStyleCity);})
 
     //add a basemap to the map basemap is dark
     L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: 'Data from <a href="https://www.openstreetmap.org/">Open Street Maps</a>, <a href="https://gis.arkansas.gov/">Arkansas State GIS Office</a>, <a href="http://www.arkansashighways.com/">Arkansas Department of Transporation</a>, and the <a href="https://www.census.gov/">US Census Bureau</a>. Basemap provided by <a/ href="https://carto.com/">CartoDB<a>',
         maxZoom: 18
-        
     }).addTo(map);
     
 
     
-    //prevents the map from zoomout outside of the maximum extent
+    //prevents the map from zooming outside of the maximum extent and getting lost
     map.on('drag', function() {
         map.panInsideBounds(mapOuterBounds, { animate: false });
         });
@@ -272,7 +320,7 @@ function runMain() {
     
 	
 	
-	//create a year label in the map
+	//create a year label object which is used by many functions
     var yearControl = $(".yearControl");
     console.log(yearControl);
     
@@ -337,8 +385,6 @@ function runMain() {
     
 }
 
-//steps missing
-//need to write function that varies symbology my population
-//need to add control buttons
 
+//launches the script after the rest of the document has been loaded
 window.onload = runMain()
