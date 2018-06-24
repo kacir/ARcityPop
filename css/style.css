@@ -89,8 +89,9 @@ div.leaflet-popup-content-wrapper {
 /*change style of text which shows the year information as it changes through the animation*/
 div.yearControl {
     background-color: rgb(128,128,128, 0.4);
-    padding: 4px;
     color: black;
+    display: inline;
+    font-size: 12px;
 }
 /*when any of the play buttons are disabled grey the button out to show the user*/
 button[disabled="disabled"] {

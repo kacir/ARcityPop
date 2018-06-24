@@ -38,18 +38,18 @@
             <!-- div contains all of the sequence controls which change which year the map shows, it is treated as a bootstrap row. buttons are one colum and the slider is a row -->
             <div class="row justify-content-center" id="playcontrols">
 			
-                <div class="col-5 col-sm-3 col-md-2 col-xl-1" id="buttonsGroup">
+                <div class="col-5 col-sm-4 col-md-3 col-xl-1" id="buttonsGroup">
                     <button title="Click to Go back one year" id="backButton" disabled="disabled"><img width="8" src="img/forward.png" style="-webkit-transform: scaleX(-1); transform: scaleX(-1);"/></button>
                     <button title="Click to Play Map Animation" id="playButton"><img width="10" src="img/play.png"/></button>
                     <button title="Click to advance by one year" id="forwardButton" ><img src="img/forward.png" width="8"></button>
+                    <div class="yearControl" title="The Current Year shown in map">Year: 2010</div>
 			     </div>
 			     
-                <div class="col-7 col-sm-9 col-md-10 col-xl-11" >
+                <div class="col-7 col-sm-8 col-md-9 col-xl-11" >
                 <input type="range" value="0" min="0" max="6" step="1" id="slider" title="drag slider to view different points in time"/>
                 </div>
 		  </div>
         </div>
-        <br/>
                 
         <footer>animation control buttons provided by the <a title="Creating, Sharing and Celebrating the World's Visual Language" href="https://thenounproject.com">Noun project</a>. The contributors are as follows, forward by creative outlet, pause by amantaka, play by Joms, and replay by Adrien Coquet. Click sound effects taken from Game Aduo UI SFC on <a title="Freesound aims to create a huge collaborative database of audio snippets, samples, recordings, bleeps, ... released under Creative Commons licenses that allow their reuse." href="freesound.org">freesound.org</a></footer>
 	</body>

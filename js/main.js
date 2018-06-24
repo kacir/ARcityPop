@@ -7,9 +7,107 @@ function runMain() {
         currentYearIndex : 0,
         currentFeild : "pop10_11",
         fieldList : ["pop10_11" , "pop11_12" , "pop12_13" , "pop13_14" , "pop14_15" , "pop15_16" , "pop16_17"],
-        fieldLabel : ["2010" , "2011" , "2012" , "2013" , "2014" , "2015" , "2016"]
+        fieldLabel : ["2010" , "2011" , "2012" , "2013" , "2014" , "2015" , "2016"],
+        
+        changeIndex :  function (index) {
+            //method sets changes internal properties which change when the index year is changed
+            settings.currentYearIndex = index;
+            
+            //tests to prevent index from going out of range
+            if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldList.length - 1;}
+            if (settings.currentYearIndex > settings.fieldList.length -1) {settings.currentYearIndex = 0;}
+        
+            settings.currentFeild = settings.fieldList[index];
+            settings.label = "Year: "+ settings.fieldLabel[index];
+            
+            //setts UI elements according to index status
+            yearControl.html(settings.label);//changes the label shown in the video thing
+            settings.disableButtons();//disable or enable certain buttons based on what the index is
+            cityLayer.setStyle(animationStyleCity);//refresh the style of the map
+            return settings;
+        },
+        
+        disableButtons : function () {
+            console.log("Disable Button function Triggered!");
+            if (settings.currentYearIndex === 0){
+                $("#backButton").attr("disabled" , "");
+            } else {
+                if ($("#backButton")[0].hasAttribute("disabled")) {
+                    $("#backButton").removeAttr("disabled");
+                }
+            }
+            
+            if (settings.currentYearIndex === settings.fieldList.length -1) {
+                $("#forwardButton").attr("disabled" , "");
+                settings.forcedPause();
+                $("#playButton")[0].innerHTML = '<img width="10" src="img/replay.png">';
+            } else {
+                if ($("#forwardButton")[0].hasAttribute("disabled")) {
+                    $("#forwardButton").removeAttr("disabled");
+                }
+                if (!settings.animationPlaying) {
+                    $("#playButton")[0].innerHTML = '<img width="10" src="img/play.png">';
+                }
+            }
+        },
+        
+        playSound :  function () {
+            $("#clicksound")[0].play();
+            return settings;
+        },
+        
+        moveSlider : function () {
+            var slider = $("#slider");
+            slider.val(settings.currentYearIndex).change();
+            slider.attr("value", settings.currentYearIndex);
+            slider.val(settings.currentYearIndex).change();
+            yearControl.html("Year : " + settings.fieldLabel[settings.currentYearIndex]);
+        },
+        
+        advanceAnimationForward : function () {
+            if (!$("#forwardButton")[0].hasAttribute("disabled")) {
+                settings.playSound();
+                settings.forcedPause();
+                settings.changeIndex(settings.currentYearIndex + 1);
+                settings.moveSlider();
+            }
+        },
+        
+        advanceAnimationBackward : function () {
+            if (!$("#backButton")[0].hasAttribute("disabled")) {
+                settings.playSound();
+                settings.forcedPause();
+                settings.changeIndex(settings.currentYearIndex - 1);
+                settings.moveSlider();
+            }
+        },
+        
+        playPause : function () {
+            settings.playSound();
+            if (settings.animationPlaying == true) {
+                settings.animationPlaying = false;
+                $("#playButton")[0].innerHTML = '<img width="10" src="img/play.png"/>';
+            } else {
+                settings.animationPlaying = true;
+                $("#playButton")[0].innerHTML = "<img src='img/pause.png' width='12' />";
+            }
+        },
+        
+        forcedPause : function () {
+            settings.animationPlaying = false;
+            $("#playButton")[0].innerHTML = '<img width="10" src="img/play.png"/>';
+        }
         
     };
+    
+
+    
+    
+    
+    
+    
+    
+    
     
     //generates style object for city layer
     function animationStyleCity (feature) {
@@ -46,7 +144,10 @@ function runMain() {
     
     //generates style object for county layer
     function animationStyleCounty (feature) {
-        var style = { };
+        var style = {
+            fillColor : "#FFFF00",
+            color: "#FFFF00"
+        };
         
         //try and use opacity the first time to set growth information
         
@@ -68,7 +169,16 @@ function runMain() {
     }).fail(function() {alert("Unable to load bouding data");});
     
     //define layers that will be shown in the map
-    var counties = L.geoJSON(null);
+    var counties = L.geoJSON(null , 
+        {style : animationStyleCounty, 
+            onEachFeature : function (feature, layer) {
+                var popupText = "<h4>" + feature.properties.County_Nam + "</h4>";
+                layer.bindPopup(popupText);
+            }                       
+        }
+    );
+    
+    //load the data from the geojson file into the geojson layer
     $.ajax("data/COUNTIES.geojson" , {
         datatype : "json",
         success : function (response) {
@@ -150,22 +260,21 @@ function runMain() {
     //reset symbology after zoom levels set correctly
     cityLayer.setStyle(animationStyleCity);
 	
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 	
 	
 	//create a year label in the map
-    var yearControl = L.control();
-    yearControl.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'yearControl'); // create a div with a class "info"
-        this.update();
-        return this._div;
-    };
-    // method that we will use to update the control based on feature properties passed
-    yearControl.update = function (props) {
-
-        this._div.innerHTML =  'Year: 2010-2011';
-        this._div.title = "The Current Year shown in map";
-    };
-    yearControl.addTo(map);
+    var yearControl = $(".yearControl");
+    console.log(yearControl);
     
     
     //create a control for the legend
@@ -183,124 +292,44 @@ function runMain() {
     legendControl.addTo(map);
     
     
-	function disableButtonApply () {
-        console.log("Disable Button function Triggered!");
-        if (settings.currentYearIndex === 0){
-            $("#backButton").attr("disabled" , "");
-        } else {
-            if ($("#backButton")[0].hasAttribute("disabled")) {
-                $("#backButton").removeAttr("disabled");
-            }
-        }
-        
-        if (settings.currentYearIndex === settings.fieldList.length -1) {
-            $("#forwardButton").attr("disabled" , "");
-            $("#playButton img").attr("src", "img/replay.png").attr("width" , "12");
-        } else {
-            $("#playButton img").attr("src", "img/play.png").attr("width" , "10");
-            if ($("#forwardButton")[0].hasAttribute("disabled")) {
-                $("#forwardButton").removeAttr("disabled");
-            }
-        }
-    }
     
-    //define function which changes animation advancement
-    function moveAnimation (increment) {
-		//advance the counter
-        console.log("moving animation");
-        settings.currentYearIndex += increment;
-        if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldList.length - 1;}
-        if (settings.currentYearIndex > settings.fieldList.length -1) {settings.currentYearIndex = 0;}
-        
-		//reset some of the values accordingly
-        settings.currentYear = settings.fieldList[settings.currentYearIndex];
-        settings.currentFeild = settings.fieldList[settings.currentYearIndex];
-        
-		//perform changes to the UI @
-        var slider = $("#slider");
-        slider.val(settings.currentYearIndex).change();
-        slider.attr("value", settings.currentYearIndex);
-        slider.val(settings.currentYearIndex).change();
-        yearControl._div.innerHTML = "Year : " + settings.fieldLabel[settings.currentYearIndex];
-
-        cityLayer.setStyle(animationStyleCity);
-    }
     
-	//define and bind function to play button to change the img and variable which determine if animation runs
-    $("#playButton").click(function() {
-        $("#clicksound")[0].play();
-        if (settings.animationPlaying === true) {
-            settings.animationPlaying = false;
-            this.innerHTML = '<img width="10" src="img/play.png"/>';
-        } else {
-            settings.animationPlaying = true;
-            this.innerHTML = "<img src='img/pause.png' width='12' />";
-        }
-    });
+    
+    
+    
+    
+    
+    
+    
+    //define and bind function to play button to change the img and variable which determine if animation runs
+    $("#playButton").click(settings.playPause);
 	
     //bind function which launches animation over time
     setInterval( function () {
         if (settings.animationPlaying){
-            moveAnimation(1);
+            settings.changeIndex(settings.currentYearIndex + 1);
+            settings.moveSlider();
         }
     } , 1500);
     
     //bind function which steps animation over one step at a time
-    $("#forwardButton").click(function(){
-        if (!this.hasAttribute("disabled")) {
-            $("#clicksound")[0].play();
-            settings.animationPlaying = false;
-            moveAnimation(1);
-            disableButtonApply();
-        }
-    });
-    $("#backButton").click(function(){
-        if (!this.hasAttribute("disabled")) {
-            $("#clicksound")[0].play();
-            settings.animationPlaying = false;
-            moveAnimation(-1);
-            disableButtonApply();
-        }
-    });
-    
-    
+    $("#forwardButton").click(settings.advanceAnimationForward);
+    $("#backButton").click(settings.advanceAnimationBackward);
     //add event to slider so it can move the animation forward @
     $("#slider").on("input", function (e){
         console.log("change slider event fired");
-        var sliderValue = Number(this.value);
-        console.log(sliderValue);
-        if (sliderValue != settings.currentYearIndex) {
-            
-            settings.currentYearIndex = sliderValue;
-            settings.currentYear = settings.fieldList[settings.currentYearIndex];
-            settings.currentFeild = settings.fieldList[settings.currentYearIndex];
-            yearControl._div.innerHTML = "Year : " + settings.fieldLabel[settings.currentYearIndex];
-            cityLayer.setStyle(animationStyleCity);
-
-        } else {
-            console.log(sliderValue);
-            console.log(settings.currentYearIndex);
-        }
-        disableButtonApply();
+        settings.changeIndex(Number(this.value));
         
     });
-    
     //make the animation move according to keystrokes
     document.addEventListener("keydown" , function(event) {
         switch (event.key){
             case "ArrowRight":
-                $("#clicksound")[0].play();
-                settings.animationPlaying = false;
-                moveAnimation(1);
-                disableButtonApply();
+                settings.advanceAnimationForward();
                 event.preventDefault();
                 break;
-                
             case "ArrowLeft":
-                $("#clicksound")[0].play();
-                settings.animationPlaying = false;
-                moveAnimation(-1);
-                disableButtonApply();
+                settings.advanceAnimationBackward();
                 event.preventDefault();
                 break;
         }
