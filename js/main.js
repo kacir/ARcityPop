@@ -7,12 +7,12 @@ function runMain() {
         currentYearIndex : 0,
         currentFeild : "pop10_11",
         fieldList : ["pop10_11" , "pop11_12" , "pop12_13" , "pop13_14" , "pop14_15" , "pop15_16" , "pop16_17"],
-        fieldLabel : ["2010 - 2011" , "2011 - 2012" , "2012 - 2013" , "2013 - 2014" , "2014 - 2015" , "2015 - 2016" , "2016 - 2017"]
+        fieldLabel : ["2010" , "2011" , "2012" , "2013" , "2014" , "2015" , "2016"]
         
     };
     
-    //returns style object for the feature given a particular population value
-    function animationStyle (feature) {
+    //generates style object for city layer
+    function animationStyleCity (feature) {
         var style = {
             fillColor: "#ff7800",
             color: "#000",
@@ -44,10 +44,19 @@ function runMain() {
         return style;
     }
     
+    //generates style object for county layer
+    function animationStyleCounty (feature) {
+        var style = { };
+        
+        //try and use opacity the first time to set growth information
+        
+        
+        return style;
+    }
     
     
-    //define layers that will be shown in the map
-    
+
+    //load a bounding box dataset which decides the maximum panning of the map.
     var mapOuterBounds = "placeholder";
     $.ajax("data/BoundingBox.geojson" , {
         datatype : "json",
@@ -55,10 +64,10 @@ function runMain() {
             console.log("starting to make bounds");
             mapOuterBounds = L.geoJSON(JSON.parse(response)).getBounds();
             console.log("bounds have been made");
-            console.log(mapOuterBounds);
         }
     }).fail(function() {alert("Unable to load bouding data");});
     
+    //define layers that will be shown in the map
     var counties = L.geoJSON(null);
     $.ajax("data/COUNTIES.geojson" , {
         datatype : "json",
@@ -68,42 +77,15 @@ function runMain() {
         }
     }).fail(function() {alert("unable to load counties data")});
     
-    var congressional = L.geoJSON(null);
-    $.ajax("data/CONGRESSIONAL.geojson" , {
-        datatype : "json",
-        success : function (response) {
-            console.log("making Congressional districts");
-            congressional.addData(JSON.parse(response));
-        }
-    }).fail(function() {alert("unable to load congressional districts data")});
-    
-    var house = L.geoJSON(null);
-    $.ajax("data/AR_HOUSE.geojson" , {
-        datatype : "json",
-        success : function (response) {
-            console.log("making AR House Districts");
-            house.addData(JSON.parse(response));
-        }
-    }).fail(function() {alert("unable to load AR House districts data")});
-    
-    var senate = L.geoJSON(null);
-    $.ajax("data/AR_SENATE.geojson" , {
-        datatype : "json",
-        success : function (response) {
-            console.log("making AR Senate Districts");
-            senate.addData(JSON.parse(response));
-        }
-    }).fail(function() {alert("unable to load AR Senate districts data")});
-    
-    var overlayMaps = {"County" : counties, "Congressional Dist" : congressional, "House Dist" : house , "Senate Dist" : senate};
     
                        
     //create the map object that will display everything                   
-    var map = L.map('map', {minZoom : 6, MaxBounds : mapOuterBounds, maxBoundsViscosity : 1.0}).fitWorld();
+    var map = L.map('map', {minZoom : 6 , maxZoom : 12 }).fitWorld();
     
-    L.control.layers(null, overlayMaps).addTo(map);
+    //add a legend control the map
+    L.control.layers(null, {"County" : counties}).addTo(map);
     
-    var jsonLayer = L.geoJSON(null, {onEachFeature : bindFeaturePopup, style : animationStyle,
+    var cityLayer = L.geoJSON(null, {onEachFeature : bindFeaturePopup, style : animationStyleCity,
         pointToLayer : function (feature, latlng) {
             return L.circleMarker(latlng, {
 				radius: 8,
@@ -115,9 +97,9 @@ function runMain() {
 				})
             }
         }).addTo(map);//json layer that stores all of the raw point data
-    map.on('zoomstart zoom zoomend', function () {jsonLayer.setStyle(animationStyle);})
+    map.on('zoomstart zoom zoomend', function () {cityLayer.setStyle(animationStyleCity);})
 
-
+    //add a basemap to the map basemap is dark
     L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: 'Data from <a href="https://www.openstreetmap.org/">Open Street Maps</a>, <a href="https://gis.arkansas.gov/">Arkansas State GIS Office</a>, <a href="http://www.arkansashighways.com/">Arkansas Department of Transporation</a>, and the <a href="https://www.census.gov/">US Census Bureau</a>. Basemap provided by <a/ href="https://carto.com/">CartoDB<a>',
         maxZoom: 18
@@ -134,8 +116,8 @@ function runMain() {
     
     //defining function that will add data into the json layer after the layer has been formed
     function addJSONToMap(response) {
-        jsonLayer.addData(JSON.parse(response));
-        map.fitBounds(jsonLayer.getBounds());//zoom to maxium extent of layer which is Arkansas
+        cityLayer.addData(JSON.parse(response));
+        map.fitBounds(cityLayer.getBounds());//zoom to maxium extent of layer which is Arkansas
     }
     
     
@@ -166,7 +148,7 @@ function runMain() {
         }).fail(function() {alert("Unable to load data");});
     
     //reset symbology after zoom levels set correctly
-    jsonLayer.setStyle(animationStyle);
+    cityLayer.setStyle(animationStyleCity);
 	
 	
 	
@@ -241,7 +223,7 @@ function runMain() {
         slider.val(settings.currentYearIndex).change();
         yearControl._div.innerHTML = "Year : " + settings.fieldLabel[settings.currentYearIndex];
 
-        jsonLayer.setStyle(animationStyle);
+        cityLayer.setStyle(animationStyleCity);
     }
     
 	//define and bind function to play button to change the img and variable which determine if animation runs
@@ -293,7 +275,7 @@ function runMain() {
             settings.currentYear = settings.fieldList[settings.currentYearIndex];
             settings.currentFeild = settings.fieldList[settings.currentYearIndex];
             yearControl._div.innerHTML = "Year : " + settings.fieldLabel[settings.currentYearIndex];
-            jsonLayer.setStyle(animationStyle);
+            cityLayer.setStyle(animationStyleCity);
 
         } else {
             console.log(sliderValue);
