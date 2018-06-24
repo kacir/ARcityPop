@@ -13,21 +13,29 @@
         <link rel="stylesheet" href="css/slider.css">
         <link rel="stylesheet" href="css/style.css">
         
+        <audio  autostart="false" controls id="clicksound">
+            <source src="sound/click-basic.wav" type="audio/wav">
+        </audio>
 
+        
         
 	</head>
 
 	<body>
+        
+        <!-- most of body is placed inside of bootstrap container  -->
         <div class="container-fluid">
             <div class="row">
-                
+                <!-- div contains the information panel which explains the map context -->
                 <div class="col-12 col-md-4 col-xl-3" id="sidepanel">
                     <h1 title="Name of the map">Arkansas Municipal Growth Over Time and Space</h1>
                     <p title="Description of population changes">Arkansas has seen a general trend over the past several decades. Rural areas are depopulating, and urban areas are gaining population. Most of southern Arkansas and eastern Arkansas is rural. Central Arkansas, northwest Arkansas are urban. There is also a small pocket of urban area around Jonesboro in northeast Arkansas. </p>
                 </div>
+                <!-- div which will contains the map that leaflet will reference. the size of the div is controled by bootstrap based on screen size  -->
                 <div class="col-12 col-md-8 col-xl-9" id="map"></div>
             </div>
-        
+            
+            <!-- div contains all of the sequence controls which change which year the map shows, it is treated as a bootstrap row. buttons are one colum and the slider is a row -->
             <div class="row justify-content-center" id="playcontrols">
 			
                 <div class="col-5 col-sm-3 col-md-2 col-xl-1" id="buttonsGroup">
@@ -42,7 +50,8 @@
 		  </div>
         </div>
         <br/>
-        <footer>animation control buttons provided by the <a href="https://thenounproject.com">Noun project</a>. The contributors are as follows, forward by creative outlet, pause by amantaka, play by Joms, and replay by Adrien Coquet</footer>
+                
+        <footer>animation control buttons provided by the <a title="Creating, Sharing and Celebrating the World's Visual Language" href="https://thenounproject.com">Noun project</a>. The contributors are as follows, forward by creative outlet, pause by amantaka, play by Joms, and replay by Adrien Coquet. Click sound effects taken from Game Aduo UI SFC on <a title="Freesound aims to create a huge collaborative database of audio snippets, samples, recordings, bleeps, ... released under Creative Commons licenses that allow their reuse." href="freesound.org">freesound.org</a></footer>
 	</body>
     
             <!--put your external script links here-->

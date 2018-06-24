@@ -1,51 +1,57 @@
+/*styling information for basic html elements present is most */
+
 body {
     padding: 5px;
     margin: 5px;
     background-color: black;
 }
- #map {
-     height: 500px;
-     width: 500px;
-}
-
-html, body {
-    height: 80%;
-    width: 100%;
-    padding: 2px;
-}
-
 h1 {
     text-align: center;
-    color: slategrey;
-    font-size: 25px;
+    color: #808080;
+    font-size: 23px;
+    padding-bottom: 5px;
 }
-
 h3 {
     text-align: center;
     font-size: 20px;
+    padding-top: 10px;
 }
-
-div {
-    margin: auto;
-	 position: relative;
-}
-
 footer {
     font-size: 10px;
     padding-bottom: 25px;
 }
-
 button {
     position: relative;
 }
-
-#playcontrols {
-    background-color: dimgray;
-    display: flex;
-	align-items: center;
-	justify-content: center;
+p {
+    padding-left: 8px;
+    padding-right: 8px;
+    color: #808080;
+}
+footer {
+    color: #808080;
+}
+a {
+    color: steelblue;
+}
+/*round corners of many ui elements to give a more clean feel*/
+div, button {
+    border-radius : 2px;
+}
+audio {
+    display: none;
 }
 
+
+
+
+/*styling information for leaflet based html elements*/
+
+/*setting the size of the leaflet map on page*/
+#map {
+     height: 600px;
+     width: 700px;
+}
 
 .leaflet-bar a.leaflet-disabled {
     background-color: dimgrey;
@@ -54,57 +60,87 @@ button {
 .leaflet-bar a, .leaflet-bar a:hover {
     background-color: darkgrey;
 }
-
-div.yearControl {
-    background-color: grey;
-    padding: 4px;
+/*controls background color of leaflet popups*/
+div.leaflet-popup-content-wrapper {
+    background-color : darkgrey;
+    color: black;
 }
 
+.leaflet-control-layers *, leaflet-control-layers-list * {
+    background-color: grey;
+    color: black;
+}
+
+.leaflet-control-attribution.leaflet-control {
+    background-color: rgb(128,128,128, 0.4);
+    color: black;
+}
+
+
+
+
+/*set controls for custom elements in the page which use ids and classes*/
+#playcontrols {
+    background-color: grey;
+    display: flex;
+	align-items: center;
+	justify-content: center;
+}
+/*change style of text which shows the year information as it changes through the animation*/
+div.yearControl {
+    background-color: rgb(128,128,128, 0.4);
+    padding: 4px;
+    color: black;
+}
+/*when any of the play buttons are disabled grey the button out to show the user*/
 button[disabled="disabled"] {
     background-color: grey;
     filter: opacity(50%);
 }
-
-.legend {
-    background-color: rgb(255,255,255,0.75);
-    width: 120px;
-    
+/*adds ident to description paragraph*/
+#sidepanel p{
+    text-indent: 30px;
 }
 
+
+
+
+
+
+/*styles that deal with the legend and its display*/
+/*controls style of legend div*/
+div.legend {
+    background-color: rgb(128,128,128, 0.7);
+    width: 120px;
+}
+
+div.legend > p, li{
+    color: black;
+}
+
+/*changes empty div elements into circles for display in the legend*/
 .circle {
     width: 20px;
     height: 20px;
     -webkit-border-radius: 25px;
     -moz-border-radius: 25px;
     border-radius: 25px;
+    
 }
-
+/*id for growing city circle in legend*/
 #growing {
     background: green;
 }
-
+/*id for shrinking city circle in legend*/
 #shrinking {
     background : red;
 }
-
+/*id for no change city circle in legend*/
 #nochange {
     background : grey;
 }
-
+/*there is only one list in page, its the legend*/
 li {
     list-style-type: none;
     padding-bottom: 2px;
-}
-
-p {
-    padding-left: 8px;
-    padding-right: 8px;
-}
-
-#sidepanel p{
-    text-indent: 30px;
-}
-
-div.leaflet-popup-content-wrapper {
-    background-color : darkgrey;
 }

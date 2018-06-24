@@ -1,8 +1,10 @@
-
 /*styles applied to input slider
 
-taken from https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/
-and modified
+taken from 
+
+https://css-tricks.com/styling-cross-browser-compatible-range-inputs-css/
+
+and modified a bit to match style of map
 
 */
 input[type=range] {

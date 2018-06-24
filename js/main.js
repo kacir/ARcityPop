@@ -98,7 +98,7 @@ function runMain() {
     var overlayMaps = {"County" : counties, "Congressional Dist" : congressional, "House Dist" : house , "Senate Dist" : senate};
     
                        
-                       
+    //create the map object that will display everything                   
     var map = L.map('map', {minZoom : 6, MaxBounds : mapOuterBounds, maxBoundsViscosity : 1.0}).fitWorld();
     
     L.control.layers(null, overlayMaps).addTo(map);
@@ -119,8 +119,9 @@ function runMain() {
 
 
     L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: 'Data from <a href="https://www.openstreetmap.org/">Open Street Maps</a>, <a href="https://gis.arkansas.gov/">Arkansas State GIS Office</a>, <a href="http://www.arkansashighways.com/">Arkansas Department of Transporation</a>, and the <a href="https://www.census.gov/">US Census Bureau</a>. Basemap provided by <a/ href="https://carto.com/">CartoDB<a>',
         maxZoom: 18
-
+        
     }).addTo(map);
     
 
@@ -245,6 +246,7 @@ function runMain() {
     
 	//define and bind function to play button to change the img and variable which determine if animation runs
     $("#playButton").click(function() {
+        $("#clicksound")[0].play();
         if (settings.animationPlaying === true) {
             settings.animationPlaying = false;
             this.innerHTML = '<img width="10" src="img/play.png"/>';
@@ -264,6 +266,7 @@ function runMain() {
     //bind function which steps animation over one step at a time
     $("#forwardButton").click(function(){
         if (!this.hasAttribute("disabled")) {
+            $("#clicksound")[0].play();
             settings.animationPlaying = false;
             moveAnimation(1);
             disableButtonApply();
@@ -271,6 +274,7 @@ function runMain() {
     });
     $("#backButton").click(function(){
         if (!this.hasAttribute("disabled")) {
+            $("#clicksound")[0].play();
             settings.animationPlaying = false;
             moveAnimation(-1);
             disableButtonApply();
@@ -303,17 +307,19 @@ function runMain() {
     document.addEventListener("keydown" , function(event) {
         switch (event.key){
             case "ArrowRight":
+                $("#clicksound")[0].play();
                 settings.animationPlaying = false;
                 moveAnimation(1);
                 disableButtonApply();
-                event.preventDefault()
+                event.preventDefault();
                 break;
                 
             case "ArrowLeft":
+                $("#clicksound")[0].play();
                 settings.animationPlaying = false;
                 moveAnimation(-1);
                 disableButtonApply();
-                event.preventDefault()
+                event.preventDefault();
                 break;
         }
     })
