@@ -118,6 +118,12 @@ div.legend {
 div.legend > p, li{
     color: black;
 }
+#missingData {
+    color: yellow;
+}
+
+
+
 
 /*changes empty div elements into circles for display in the legend*/
 .circle {

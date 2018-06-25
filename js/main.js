@@ -9,6 +9,8 @@ function runMain() {
         fieldListCity : ["pop10_11" , "pop11_12" , "pop12_13" , "pop13_14" , "pop14_15" , "pop15_16" , "pop16_17"],//the field list of all relevent year related field in cities layer
         fieldListCounty : ["perCh2010" ,"perCh2011", "perCh2012", "perCh2013", "perCh2014", "perCh2015", "perCh2016"],
         fieldLabel : ["2010" , "2011" , "2012" , "2013" , "2014" , "2015" , "2016"],//list of year labels that will be shown to the user in the year div element.
+        legendHTMLCity : "<h3>Legend</h3> <ul><li>Growing City<div class='circle' id='growing' /></li><li>Shrinking City <div class='circle' id='shrinking' /></li><li>No population change <div class='circle' id='nochange' /></li></ul><p>Note the larger the circle the larger the % change</p>",
+        legendHTMLCounty : "Green Counties are Growing, Red Counties are Shrinking",
         
         //method changes the index for the current year shown in the map. This is a general method 
         //which takes care of ui and property related actions which all UI elements need to change
@@ -31,6 +33,7 @@ function runMain() {
             settings.disableButtons();//disable or enable certain buttons based on what the index is
             cityLayer.setStyle(animationStyleCity);//refresh the style of the map to reflect the current most year
             counties.setStyle(animationStyleCounty);
+            settings.legendUpdate();
             
             return settings;
         },
@@ -117,6 +120,25 @@ function runMain() {
         forcedPause : function () {
             settings.animationPlaying = false;
             $("#playButton")[0].innerHTML = '<img width="10" src="img/play.png"/>';
+        },
+        
+        legendUpdate : function() {
+            var legendHTML = "";
+            
+            if(map.hasLayer(cityLayer)) {
+                legendHTML = legendHTML + settings.legendHTMLCity;
+            }
+            
+            if (map.hasLayer(counties)) {
+                if (settings.currentYearIndex == 6) {
+                    legendHTML = legendHTML + "<p id='missingData'>Income data is not avaliable for this year</p>";
+                } else {
+                    legendHTML = legendHTML + settings.legendHTMLCounty;
+                }
+            }
+            
+            legendControl._div.innerHTML = legendHTML
+            
         }
         
     };
@@ -199,6 +221,8 @@ function runMain() {
     }
     
     
+    
+    
 
     //load a bounding box dataset which decides the maximum panning area of the map.
     //it helps prevent the user from getting lost.
@@ -253,7 +277,7 @@ function runMain() {
         }).addTo(map);//json layer that stores all of the raw point data
     
     //add a legend control the map
-    L.control.layers(null, {"City" : cityLayer , "County" : counties}).addTo(map);
+    L.control.layers(null, {"City Population" : cityLayer , "County Income" : counties}).addTo(map);
     
     //whenever the map zooms the city layer symbology will be reset so the symbel actually get larger as the user zooms in
     map.on('zoomstart zoom zoomend', function () {cityLayer.setStyle(animationStyleCity);})
@@ -335,7 +359,7 @@ function runMain() {
     };
     legendControl.update = function (props) {
         this._div.title = "Info Represents feature in map";
-        this._div.innerHTML = "<h3>Legend</h3> <ul><li>Growing City<div class='circle' id='growing' /></li><li>Shrinking City <div class='circle' id='shrinking' /></li><li>No population change <div class='circle' id='nochange' /></li></ul><p>Note the larger the circle the larger the % change</p>";
+        this._div.innerHTML = settings.legendHTMLCity;
     }
     legendControl.addTo(map);
     
@@ -345,9 +369,8 @@ function runMain() {
     
     
     
-    
-    
-    
+    //update the contents of the legend according to which layers are currently in the map
+    $("input[type=checkbox]").bind("change", settings.legendUpdate);
     
     //define and bind function to play button to change the img and variable which determine if animation runs
     $("#playButton").click(settings.playPause);
