@@ -1,5 +1,56 @@
 function runMain() {
-       
+    
+    var LayerList = [];
+    
+    //function makes a group layer object and gives it some methods and properties specific to time animation project
+    //its kind of an object constructor but not
+    //has not been implimented yet. will replace akward implementation inside of setting object at a later date.
+    function makeLayer (geojsonPath, options, fieldListPercent, fieldListRawValue, legendHTML, legendHTMLMissing, missingDataIndex) {
+        
+        //make the layer object
+        var layerGroup = L.geoJSON(null , options);
+        
+        //add object to legend list
+        LayerList.push(layerGroup);
+        
+        //make an ajax call to get the data
+        $.ajax(geojsonPath , {
+            datatype : "json",
+            success: function (response) {layerGroup.addData(JSON.parse(response));}
+            }).fail(function() {alert("Unable to load data");});
+        
+        //give it properties for fieldListPercent, fieldListRawValue, and legendHTML
+        layerGroup.fieldListPercent = fieldListPercent;
+        layerGroup.fieldListRawValue = fieldListRawValue;
+        layerGroup.legendHTML = legendHTML;
+        layerGroup.currentPercentField = fieldListPercent[0];
+        layerGroup.currentRawValueField = fieldListRawValue[0];
+        
+        //making some properties accessable long after the layer has been created
+        layerGroup.style = options.style;
+        layerGroup.createPopup = options.onEachFeature;
+        
+        //assign a method which resets all of the popups and symbology based on the current year
+        layerGroup.updateLook = function () {
+            settings.currentYearIndex;
+            if (missingDataIndex.indexOf(settings.currentYearIndex) == -1) {
+                layerGroup.setStyle(layerGroup.style);//should reset the style of every layer in the layer group
+            
+                //resets the popups according to the current year
+                layerGroup.eachLayer(function(layer){
+                layerGroup.createPopup(layer.feature, layer);
+                });
+            }
+            
+        }
+        
+        //give the layer back so it can be dealt with outside of the protoype construction function
+        return layerGroup;
+        
+    }
+    
+    
+    
 	//globalish object which contains attributes and methods used to react to events in the DOM.
     var settings = {
         animationPlaying : false,//indicates if the play button is active so the animation can step forward overtime
@@ -263,6 +314,9 @@ function runMain() {
     var counties = L.geoJSON(null , 
             {style : animationStyleCounty, onEachFeature : settings.countyPopupTextConstruct}                       
         );
+    
+    console.log("counties object is a..");
+    console.log(counties);
     
     //load the counties data into the counties layer
     $.ajax("data/COUNTIES.geojson" , {
