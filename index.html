@@ -29,7 +29,10 @@
                 <!-- div contains the information panel which explains the map context -->
                 <div class="col-12 col-md-4 col-xl-3" id="sidepanel">
                     <h1 title="Name of the map">Arkansas Municipal Growth Over Time and Space</h1>
-                    <p title="Description of population changes">Arkansas has seen a general trend over the past several decades. Rural areas are depopulating, and urban areas are gaining population. Most of southern Arkansas and eastern Arkansas is rural. Central Arkansas, northwest Arkansas are urban. There is also a small pocket of urban area around Jonesboro in northeast Arkansas. </p>
+                    <p title="Description of population changes">Arkansas has seen a general trend over the past several decades. Rural areas are depopulating, and urban areas are gaining population. It is most commonly thought that people are moving into areas with more job oportunities and higher income. But is this really the case?
+                    </p>
+                    <p>
+                    Most of southern Arkansas and eastern Arkansas is rural. Central Arkansas, northwest Arkansas are urban. There is also a small pocket of urban area around Jonesboro in northeast Arkansas. </p>
                 </div>
                 <!-- div which will contains the map that leaflet will reference. the size of the div is controled by bootstrap based on screen size  -->
                 <div class="col-12 col-md-8 col-xl-9" id="map"></div>
@@ -38,14 +41,14 @@
             <!-- div contains all of the sequence controls which change which year the map shows, it is treated as a bootstrap row. buttons are one colum and the slider is a row -->
             <div class="row justify-content-center" id="playcontrols">
 			
-                <div class="col-5 col-sm-4 col-md-3 col-xl-1" id="buttonsGroup">
+                <div class="col-7 col-sm-5 col-md-3 col-lg-3 col-xl-2" id="buttonsGroup">
                     <button title="Click to Go back one year" id="backButton" disabled="disabled"><img width="8" src="img/forward.png" style="-webkit-transform: scaleX(-1); transform: scaleX(-1);"/></button>
                     <button title="Click to Play Map Animation" id="playButton"><img width="10" src="img/play.png"/></button>
                     <button title="Click to advance by one year" id="forwardButton" ><img src="img/forward.png" width="8"></button>
                     <div class="yearControl" title="The Current Year shown in map">Year: 2010</div>
 			     </div>
 			     
-                <div class="col-7 col-sm-8 col-md-9 col-xl-11" >
+                <div class="col-5 col-sm-7 col-md-9 col-lg-9 col-xl-10" >
                 <input type="range" value="0" min="0" max="6" step="1" id="slider" title="drag slider to view different points in time"/>
                 </div>
 		  </div>

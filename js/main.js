@@ -1,23 +1,28 @@
 function runMain() {
     
-    var LayerList = [];
-    
     //function makes a group layer object and gives it some methods and properties specific to time animation project
     //its kind of an object constructor but not
     //has not been implimented yet. will replace akward implementation inside of setting object at a later date.
     function makeLayer (geojsonPath, options, fieldListPercent, fieldListRawValue, legendHTML, legendHTMLMissing, missingDataIndex) {
         
         //make the layer object
+        console.log("making layer object");
         var layerGroup = L.geoJSON(null , options);
         
-        //add object to legend list
-        LayerList.push(layerGroup);
-        
-        //make an ajax call to get the data
-        $.ajax(geojsonPath , {
+        layerGroup.geojsonPath = geojsonPath;
+        layerGroup.loadData = function () {
+            //make an ajax call to get the data
+            $.ajax(layerGroup.geojsonPath , {
             datatype : "json",
-            success: function (response) {layerGroup.addData(JSON.parse(response));}
+            success: function (response) {
+                console.log("about to load ajax data into Geojson layer");
+                var parsed = JSON.parse(response);
+                layerGroup.addData(parsed);
+                console.log("successfully added data into layer");
+            }
             }).fail(function() {alert("Unable to load data");});
+        }
+        
         
         //give it properties for fieldListPercent, fieldListRawValue, and legendHTML
         layerGroup.fieldListPercent = fieldListPercent;
@@ -25,6 +30,7 @@ function runMain() {
         layerGroup.legendHTML = legendHTML;
         layerGroup.currentPercentField = fieldListPercent[0];
         layerGroup.currentRawValueField = fieldListRawValue[0];
+        layerGroup.missingDataIndex = missingDataIndex;
         
         //making some properties accessable long after the layer has been created
         layerGroup.style = options.style;
@@ -32,14 +38,21 @@ function runMain() {
         
         //assign a method which resets all of the popups and symbology based on the current year
         layerGroup.updateLook = function () {
-            settings.currentYearIndex;
-            if (missingDataIndex.indexOf(settings.currentYearIndex) == -1) {
+            
+            layerGroup.currentPercentField = layerGroup.fieldListPercent[settings.currentYearIndex];
+            layerGroup.currentRawValueField = layerGroup.fieldListRawValue[settings.currentYearIndex];
+            
+            //if the layer symoblogy is normal
+            if (layerGroup.missingDataIndex != settings.currentYearIndex) {
                 layerGroup.setStyle(layerGroup.style);//should reset the style of every layer in the layer group
             
                 //resets the popups according to the current year
                 layerGroup.eachLayer(function(layer){
                 layerGroup.createPopup(layer.feature, layer);
                 });
+            } else {
+                layerGroup.setStyle(layerGroup.style)
+                layerGroup.closePopup();
             }
             
         }
@@ -55,15 +68,7 @@ function runMain() {
     var settings = {
         animationPlaying : false,//indicates if the play button is active so the animation can step forward overtime
         currentYearIndex : 0,//the index position in the list of the current point in time shown on map
-        currentFieldCity : "pop10_11",//the field name inside of the cities layer that corresponds to the current year.
-        currentFieldCounty : "perCh2010",//the field name inside of the counties layer that corresponds to the current year
-        currentFieldCountyRaw : "income2010",
-        fieldListCity : ["pop10_11" , "pop11_12" , "pop12_13" , "pop13_14" , "pop14_15" , "pop15_16" , "pop16_17"],//the field list of all relevent year related field in cities layer
-        fieldListCounty : ["perCh2010" ,"perCh2011", "perCh2012", "perCh2013", "perCh2014", "perCh2015", "perCh2016"],
-        fieldListCountyRaw : ["income2010", "income2011", "income2012", "income2013", "income2014", "income2015", "income2016"],
         fieldLabel : ["2010" , "2011" , "2012" , "2013" , "2014" , "2015" , "2016"],//list of year labels that will be shown to the user in the year div element.
-        legendHTMLCity : "<h3>Legend</h3> <ul><li>Growing City<div class='circle' id='growing' /></li><li>Shrinking City <div class='circle' id='shrinking' /></li><li>No population change <div class='circle' id='nochange' /></li></ul><p>Note the larger the circle the larger the % change</p>",
-        legendHTMLCounty : "Green Counties are Growing, Red Counties are Shrinking",
         
         //method changes the index for the current year shown in the map. This is a general method 
         //which takes care of ui and property related actions which all UI elements need to change
@@ -73,39 +78,28 @@ function runMain() {
             settings.currentYearIndex = index;
             
             //tests to prevent index from going out of range
-            if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldListCity.length - 1;}
-            if (settings.currentYearIndex > settings.fieldListCity.length -1) {settings.currentYearIndex = 0;}
+            if (settings.currentYearIndex === -1) {settings.currentYearIndex = settings.fieldLabel.length - 1;}
+            if (settings.currentYearIndex > settings.fieldLabel.length -1) {settings.currentYearIndex = 0;}
+            console.log("Current Index is " + settings.currentYearIndex)
             
             //makes it eaier to set the year information in the year div
-            settings.currentFieldCity = settings.fieldListCity[index];
-            settings.currentFieldCounty = settings.fieldListCounty[index];
-            settings.currentFieldCountyRaw = settings.fieldListCountyRaw[index];
-            settings.label = "Year: "+ settings.fieldLabel[index];
+            settings.label = "Year: " + settings.fieldLabel[index];
             
             //sets UI elements according to index status
             yearControl.html(settings.label);//changes the label shown in year div
             settings.disableButtons();//disable or enable certain buttons based on what the index is
-            cityLayer.setStyle(animationStyleCity);//refresh the style of the map to reflect the current most year
-            counties.setStyle(animationStyleCounty);
+            cityLayer.updateLook();//refresh the style of the map to reflect the current most year
+            countiesLayer.updateLook();
             settings.legendUpdate();
             
-            //attempt to reset popups of counties layer
-            counties.eachLayer(function(layer) {
-                //there is no data for the last year. if the layer has a popup open close it because it will not refer to anything. there will be no polygon below the popup.
-                if (settings.currentYearIndex == 6) {
-                    layer.closePopup();
-                    return settings;
-                }
-                settings.countyPopupTextConstruct(layer.feature, layer);
-            });
             
             return settings;
         },
         //creates and binds popup text for the counties layer
         countyPopupTextConstruct : function(feature, layer) {
-                var percentChange = feature.properties[settings.currentFieldCounty];
+                var percentChange = feature.properties[countiesLayer.currentPercentField];
                 var countyName = feature.properties["name"];
-                var rawValue = feature.properties[settings.currentFieldCountyRaw];
+                var rawValue = feature.properties[countiesLayer.currentRawValueField];
             
                 layer.bindPopup("<H3>" + countyName + "County: </H3> <p class='popupText'> " + percentChange + "% Change in income (originally $" + rawValue + ") </p>");
         },
@@ -123,7 +117,7 @@ function runMain() {
             }
             
             //if the last year is the current year disable the forward button and chase the playbutton into a replay button
-            if (settings.currentYearIndex === settings.fieldListCity.length -1) {
+            if (settings.currentYearIndex === settings.fieldLabel.length -1) {
                 $("#forwardButton").attr("disabled" , "");
                 settings.forcedPause();
                 $("#playButton")[0].innerHTML = '<img width="10" src="img/replay.png">';
@@ -198,14 +192,14 @@ function runMain() {
             var legendHTML = "";
             
             if(map.hasLayer(cityLayer)) {
-                legendHTML = legendHTML + settings.legendHTMLCity;
+                legendHTML = legendHTML + cityLayer.legendHTML;
             }
             
-            if (map.hasLayer(counties)) {
+            if (map.hasLayer(countiesLayer)) {
                 if (settings.currentYearIndex == 6) {
                     legendHTML = legendHTML + "<p id='missingData'>Income data is not avaliable for this year</p>";
                 } else {
-                    legendHTML = legendHTML + settings.legendHTMLCounty;
+                    legendHTML = legendHTML + countiesLayer.legendHTML;
                 }
             }
             
@@ -237,13 +231,13 @@ function runMain() {
         var scaleFactor = map.getZoom() - 6;
         
         //set the color according to if the % is negitive positive or zero
-        if (feature.properties[settings.currentFieldCity] == 0) {
+        if (feature.properties[cityLayer.currentPercentField] == 0) {
             style.color = "#2F4F4F";
             style.fillColor = "#2F4F4F";
             style.radius = 1 * scaleFactor;
         } else {
             //set color to green if the more than 1
-            if (feature.properties[settings.currentFieldCity] > 0) {
+            if (feature.properties[cityLayer.currentPercentField] > 0) {
                 style.color = "#006400";
                 style.fillColor = "#006400";
             } else {
@@ -252,7 +246,7 @@ function runMain() {
             }
             
 
-            style.radius = Math.abs(feature.properties[settings.currentFieldCity]) * 225 * scaleFactor;
+            style.radius = Math.abs(feature.properties[cityLayer.currentPercentField]) * 225 * scaleFactor;
         }
         return style;
     }
@@ -263,8 +257,7 @@ function runMain() {
             fillColor : "#FFFF00",
             color: "#FFFF00",
             opacity : 0.95,
-            fillOpacity : 1.0,
-            color : "black"
+            fillOpacity : 1.0
         };
         
         if (settings.currentFieldCounty == 'perCh2016') {
@@ -273,7 +266,7 @@ function runMain() {
             return style;
         }
         
-        var percentChange = Number(feature.properties[settings.currentFieldCounty]);
+        var percentChange = Number(feature.properties[countiesLayer.currentPercentField]);
         
         //counties with no population change get a value of zero
         if (percentChange == 0) {
@@ -310,22 +303,21 @@ function runMain() {
         }
     }).fail(function() {alert("Unable to load bouding data");});
     
+    
+    
+    
     //generate the layer object for the counties dataset
-    var counties = L.geoJSON(null , 
-            {style : animationStyleCounty, onEachFeature : settings.countyPopupTextConstruct}                       
-        );
-    
-    console.log("counties object is a..");
-    console.log(counties);
-    
-    //load the counties data into the counties layer
-    $.ajax("data/COUNTIES.geojson" , {
-        datatype : "json",
-        success : function (response) {
-            console.log("making Counties");
-            counties.addData(JSON.parse(response));
-        }
-    }).fail(function() {alert("unable to load counties data")});
+    console.log("making counties layer");
+    var countiesLayer = makeLayer("data/COUNTIES.geojson", 
+                           {style : animationStyleCounty, onEachFeature : settings.countyPopupTextConstruct},
+                             ["perCh2010" ,"perCh2011", "perCh2012", "perCh2013", "perCh2014", "perCh2015", "perCh2016"],
+                             ["income2010", "income2011", "income2012", "income2013", "income2014", "income2015", "income2016"],
+                             "Green Counties are Growing, Red Counties are Shrinking",
+                             "<p id='missingData'>Income data is not avaliable for this year</p>",
+                             6
+                          );
+    //loading counties via ajax
+    countiesLayer.loadData();
     
     
                        
@@ -333,23 +325,30 @@ function runMain() {
     var map = L.map('map', {minZoom : 6 , maxZoom : 12 }).fitWorld();
     
 
+    console.log("making city layer");
+    var cityLayer = makeLayer("data/CITY.geojson",
+                              {onEachFeature : bindFeaturePopup, style : animationStyleCity,
+                                    pointToLayer : function (feature, latlng) {
+                                    return L.circleMarker(latlng, {
+                                    radius: 8,
+                                    fillColor: "#ff7800",
+                                    color: "#000",
+                                    weight: 1,
+                                    opacity: 1,
+                                    fillOpacity: 0.8
+                                    })
+                                    }}, 
+                               ["pop10_11" , "pop11_12" , "pop12_13" , "pop13_14" , "pop14_15" , "pop15_16" , "pop16_17"],
+                               ["pop2010" , "pop2011", "pop2012", "pop2013", "pop2014", "pop2015", "pop2016"],
+                               "<h3>Legend</h3> <ul><li>Growing City<div class='circle' id='growing' /></li><li>Shrinking City <div class='circle' id='shrinking' /></li><li>No population change <div class='circle' id='nochange' /></li></ul><p>Note the larger the circle the larger the % change</p>",
+                               "",
+                               null
+                             );
     
-    //generate an empty layer for the city data to sit in.
-    var cityLayer = L.geoJSON(null, {onEachFeature : bindFeaturePopup, style : animationStyleCity,
-        pointToLayer : function (feature, latlng) {
-            return L.circleMarker(latlng, {
-				radius: 8,
-				fillColor: "#ff7800",
-				color: "#000",
-				weight: 1,
-				opacity: 1,
-				fillOpacity: 0.8
-				})
-            }
-        }).addTo(map);//json layer that stores all of the raw point data
+    cityLayer.addTo(map);
     
     //add a legend control the map
-    L.control.layers(null, {"City Population Growth" : cityLayer , "County Income" : counties}).addTo(map);
+    L.control.layers(null, {"City Population Growth" : cityLayer , "County Income" : countiesLayer}).addTo(map);
     
     //whenever the map zooms the city layer symbology will be reset so the symbel actually get larger as the user zooms in
     map.on('zoomstart zoom zoomend', function () {cityLayer.setStyle(animationStyleCity);})
@@ -381,16 +380,7 @@ function runMain() {
         var popupText;
         
         popupText = "<h3>" + feature.properties.city_name + "</h3>" +
-            "<table>" + 
-            "<tr><th>Year</th> <th>Population</th></tr>" +
-            "<tr><td>2010 - 2011</td> <td>" + Math.round(feature.properties.pop10_11 * 100) + "%</tr>" + 
-            "<tr><td>2011 - 2012</td> <td>" + Math.round(feature.properties.pop11_12 * 100) + "%</tr>" + 
-            "<tr><td>2012 - 2013</td> <td>" + Math.round(feature.properties.pop12_13 * 100) + "%</tr>" + 
-            "<tr><td>2013 - 2014</td> <td>" + Math.round(feature.properties.pop13_14 * 100) + "%</tr>" + 
-            "<tr><td>2014 - 2015</td> <td>" + Math.round(feature.properties.pop14_15 * 100) + "%</tr>" + 
-            "<tr><td>2015 - 2016</td> <td>" + Math.round(feature.properties.pop15_16 * 100) + "%</tr>" + 
-            "<tr><td>2016 - 2017</td> <td>" + Math.round(feature.properties.pop16_17 * 100) + "%</tr>" + 
-            "</table>";
+            "<p class='popupText'> The Percent change is " + feature.properties[cityLayer.currentPercentField] + "% and the population was " + feature.properties[cityLayer.currentRawValueField].toLocaleString() + " </p>.";
         
         layer.bindPopup(popupText);
     }
@@ -419,7 +409,7 @@ function runMain() {
 	
 	//create a year label object which is used by many functions
     var yearControl = $(".yearControl");
-    console.log(yearControl);
+    console.log("made year control");
     
     
     //create a control for the legend
