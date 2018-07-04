@@ -189,7 +189,7 @@ function runMain() {
         },
         
         legendUpdate : function() {
-            var legendHTML = "";
+            var legendHTML = "<h3>Legend</h3>";
             
             if(map.hasLayer(cityLayer)) {
                 legendHTML = legendHTML + cityLayer.legendHTML;
@@ -265,8 +265,8 @@ function runMain() {
         var style = {
             color: "grey",
             opacity : 0.95,
-            fillOpacity : 0.6,
-            weight : 2
+            fillOpacity : 0.4,
+            weight : 0.5
         };
         
         if (countiesLayer.currentPercentField == 'perCh2016') {
@@ -321,7 +321,7 @@ function runMain() {
                            {style : animationStyleCounty, onEachFeature : settings.countyPopupTextConstruct},
                              ["perCh2010" ,"perCh2011", "perCh2012", "perCh2013", "perCh2014", "perCh2015", "perCh2016"],
                              ["income2010", "income2011", "income2012", "income2013", "income2014", "income2015", "income2016"],
-                             "<ul><li>Growing Income <div class='square' id='countyGrowing'></div></li> <li>Shrinking Income <div class='square' id='countyShrinking'></div></li> <li>Income no change <div class='square' id='countynochange'></div></li>  </ul>",
+                             "<ul><li><div class='square' id='countyGrowing'></div> Growing Income</li> <li><div class='square' id='countyShrinking'></div> Shrinking Income </li> <li> <div class='square' id='countynochange'></div> Income no change</li>  </ul>",
                              "<p id='missingData'>Income data is not avaliable for this year</p>",
                              6
                           );
@@ -349,7 +349,7 @@ function runMain() {
                                     }}, 
                                ["pop10_11" , "pop11_12" , "pop12_13" , "pop13_14" , "pop14_15" , "pop15_16" , "pop16_17"],
                                ["pop2010" , "pop2011", "pop2012", "pop2013", "pop2014", "pop2015", "pop2016"],
-                               "<h3>Legend</h3> <ul><li>Growing City<div class='circle' id='growing' /></li><li>Shrinking City <div class='circle' id='shrinking' /></li><li>No population change <div class='circle' id='nochange' /></li></ul><p>Note the larger the circle the larger the % change</p>",
+                               "<ul><li><div class='circle' id='growing'></div><span>Growing City</span></li><li> <div class='circle' id='shrinking'></div><span>Shrinking City</span></li><li> <div class='circle' id='nochange'></div><span>No Pop Change</span></li></ul><p>Note the larger the circle the larger the % change</p>",
                                "",
                                null
                              );
@@ -483,10 +483,12 @@ function runMain() {
     
     //symbology changes slightly based on which layers are on, the legend also changes content to match map contents
     map.on("overlayadd overlayremove", function (event) {
+        console.log("updating map based on currently added layers");
         cityLayer.updateLook();//refresh the style of the map to reflect the current most year
         countiesLayer.updateLook();
         settings.legendUpdate();
-        cityLayer.bringToFront();
+        (map.hasLayer(cityLayer)) ? cityLayer.bringToFront() : null;//if the city layer is in the map make sure it is the top group layer
+        
     });
     
 }

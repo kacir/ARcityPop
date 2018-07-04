@@ -116,27 +116,36 @@ button[disabled="disabled"] {
 /*controls style of legend div*/
 div.legend {
     background-color: rgb(128,128,128, 0.7);
-    width: 120px;
+    width: 150px;
 }
 
 div.legend > p, li{
     color: black;
 }
+
+div.legend > p {
+    margin-bottom: 5px;
+}
+
+div.legend > h3 {
+    color: black;
+}
+
 #missingData {
     color: yellow;
 }
 
 
 
-
 /*changes empty div elements into circles for display in the legend*/
 .circle {
-    width: 20px;
-    height: 20px;
-    -webkit-border-radius: 25px;
-    -moz-border-radius: 25px;
-    border-radius: 25px;
-    
+    width: 15px;
+    height: 15px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+    display: inline-block;
+    margin-right: 5px;
 }
 /*id for growing city circle in legend*/
 #growing {
@@ -154,13 +163,21 @@ div.legend > p, li{
 li {
     list-style-type: none;
     padding-bottom: 2px;
+    white-space:nowrap;
+}
+
+ul {
+    padding: 5px;
+    margin-bottom: 10px;
 }
 
 /*changes to empt div elements into rectances for display in the legend*/
 
 .square {
-    width: 20px;
-    height: 20px;
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    margin-right: 5px;
 }
 #countyGrowing {
     background: green;
