@@ -101,7 +101,7 @@ function runMain() {
                 var countyName = feature.properties["name"];
                 var rawValue = feature.properties[countiesLayer.currentRawValueField];
             
-                layer.bindPopup("<H3>" + countyName + "County: </H3> <p class='popupText'> " + percentChange + "% Change in income (originally $" + rawValue + ") </p>");
+                layer.bindPopup("<H3>" + countyName + " County: </H3> <p class='popupText'> " + percentChange + "% Change in income (originally $" + rawValue + ") </p>");
         },
         
         //disables or enables the back and forward buttons depend on if the current year is the last or first year
@@ -222,10 +222,11 @@ function runMain() {
     function animationStyleCity (feature) {
         var style = {
             fillColor: "#ff7800",
-            color: "#000",
             fillOpacity : 0.5,
             opacity : 0.8
         };
+        
+        
         
         //create a factor to increase symbol size as you are zooming in
         var scaleFactor = map.getZoom() - 6;
@@ -245,22 +246,30 @@ function runMain() {
                 style.fillColor = "red";
             }
             
+        
 
             style.radius = Math.abs(feature.properties[cityLayer.currentPercentField]) * 225 * scaleFactor;
         }
+        
+        if (map.hasLayer(countiesLayer)) {
+            style.fillOpacity = 1;
+            style.opacity = 1;
+            style.color = "black";
+        }
+        
         return style;
     }
     
     //generates style object for county layer
     function animationStyleCounty (feature) {
         var style = {
-            fillColor : "#FFFF00",
-            color: "#FFFF00",
+            color: "grey",
             opacity : 0.95,
-            fillOpacity : 1.0
+            fillOpacity : 0.6,
+            weight : 2
         };
         
-        if (settings.currentFieldCounty == 'perCh2016') {
+        if (countiesLayer.currentPercentField == 'perCh2016') {
             style.opacity = 0;
             style.fillColor = 'none';
             return style;
@@ -270,8 +279,8 @@ function runMain() {
         
         //counties with no population change get a value of zero
         if (percentChange == 0) {
-            style.opacity = 0;
-            style.fillColor = 'none';
+            style.opacity = 1;
+            style.fillColor = 'black';
         } else {
             if (percentChange > 0){
                 style.fillColor = "green";
@@ -312,7 +321,7 @@ function runMain() {
                            {style : animationStyleCounty, onEachFeature : settings.countyPopupTextConstruct},
                              ["perCh2010" ,"perCh2011", "perCh2012", "perCh2013", "perCh2014", "perCh2015", "perCh2016"],
                              ["income2010", "income2011", "income2012", "income2013", "income2014", "income2015", "income2016"],
-                             "Green Counties are Growing, Red Counties are Shrinking",
+                             "<ul><li>Growing Income <div class='square' id='countyGrowing'></div></li> <li>Shrinking Income <div class='square' id='countyShrinking'></div></li> <li>Income no change <div class='square' id='countynochange'></div></li>  </ul>",
                              "<p id='missingData'>Income data is not avaliable for this year</p>",
                              6
                           );
@@ -347,8 +356,12 @@ function runMain() {
     
     cityLayer.addTo(map);
     
+    
+    
     //add a legend control the map
     L.control.layers(null, {"City Population Growth" : cityLayer , "County Income" : countiesLayer}).addTo(map);
+    
+    
     
     //whenever the map zooms the city layer symbology will be reset so the symbel actually get larger as the user zooms in
     map.on('zoomstart zoom zoomend', function () {cityLayer.setStyle(animationStyleCity);})
@@ -359,7 +372,7 @@ function runMain() {
         maxZoom: 18
     }).addTo(map);
     
-
+    
     
     //prevents the map from zooming outside of the maximum extent and getting lost
     map.on('drag', function() {
@@ -425,19 +438,14 @@ function runMain() {
         this._div.innerHTML = settings.legendHTMLCity;
     }
     legendControl.addTo(map);
+    //after the legend is created update its contents
+    settings.legendUpdate();
     
     
     
     
+        
     
-    
-    
-    //update the contents of the legend according to which layers are currently in the map
-    $("input[type=checkbox]").bind("change", settings.legendUpdate);
-    //whenever the layers are changed in the layer visibility, always make sure the cities layer ends up on top
-    $("input[type=checkbox]").bind("change", function () {
-                                    cityLayer.bringToFront();
-                                    });
     
     //define and bind function to play button to change the img and variable which determine if animation runs
     $("#playButton").click(settings.playPause);
@@ -472,6 +480,14 @@ function runMain() {
                 break;
         }
     })
+    
+    //symbology changes slightly based on which layers are on, the legend also changes content to match map contents
+    map.on("overlayadd overlayremove", function (event) {
+        cityLayer.updateLook();//refresh the style of the map to reflect the current most year
+        countiesLayer.updateLook();
+        settings.legendUpdate();
+        cityLayer.bringToFront();
+    });
     
 }
 

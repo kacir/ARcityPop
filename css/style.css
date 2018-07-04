@@ -155,3 +155,21 @@ li {
     list-style-type: none;
     padding-bottom: 2px;
 }
+
+/*changes to empt div elements into rectances for display in the legend*/
+
+.square {
+    width: 20px;
+    height: 20px;
+}
+#countyGrowing {
+    background: green;
+}
+
+#countyShrinking {
+    background: red;
+}
+
+#countynochange {
+    background: black;
+}
