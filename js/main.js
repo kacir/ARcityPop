@@ -140,11 +140,11 @@ function runMain() {
         //whenever the animation moves via arrow keystrokes or arrow buttons the
         //slider needs to move too. This method changes the slider position to the
         //current year index
-        moveSlider : function () {
+        moveSlider : function (sliderValue) {
             var slider = $("#slider");
-            slider.val(settings.currentYearIndex).change();
-            slider.attr("value", settings.currentYearIndex);
-            slider.val(settings.currentYearIndex).change();
+            slider.val(sliderValue).change();
+            slider.attr("value", sliderValue);
+            slider.val(sliderValue).change();
             yearControl.html("Year : " + settings.fieldLabel[settings.currentYearIndex]);
         },
         
@@ -154,7 +154,7 @@ function runMain() {
                 settings.playSound();
                 settings.forcedPause();
                 settings.changeIndex(settings.currentYearIndex + 1);
-                settings.moveSlider();
+                settings.moveSlider(settings.currentYearIndex);
             }
         },
         
@@ -164,7 +164,7 @@ function runMain() {
                 settings.playSound();
                 settings.forcedPause();
                 settings.changeIndex(settings.currentYearIndex - 1);
-                settings.moveSlider();
+                settings.moveSlider(settings.currentYearIndex);
             }
         },
         
@@ -453,10 +453,12 @@ function runMain() {
     //bind function which launches animation over time
     setInterval( function () {
         if (settings.animationPlaying){
-            settings.changeIndex(settings.currentYearIndex + 1);
-            settings.moveSlider();
+            var sliderValue = Number($("#slider")[0].value) + 0.01;
+            console.log("slider value : " + sliderValue);
+            settings.changeIndex(Math.floor(sliderValue));
+            settings.moveSlider(sliderValue);
         }
-    } , 1500);
+    } , 7);
     
     //bind function which steps animation over one step at a time
     $("#forwardButton").click(settings.advanceAnimationForward);
@@ -464,7 +466,7 @@ function runMain() {
     //add event to slider so it can move the animation forward @
     $("#slider").on("input", function (e){
         console.log("change slider event fired");
-        settings.changeIndex(Number(this.value));
+        settings.changeIndex(Math.floor(Number(this.value)));
         
     });
     //make the animation move according to keystrokes
