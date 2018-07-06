@@ -172,12 +172,14 @@ function runMain() {
         //to reflect the most current state.
         playPause : function () {
             settings.playSound();
+            
             if (settings.animationPlaying == true) {
                 settings.animationPlaying = false;
                 $("#playButton")[0].innerHTML = '<img width="10" src="img/play.png"/>';
             } else {
-                settings.animationPlaying = true;
+                settings.animationPlaying = true;            
                 $("#playButton")[0].innerHTML = "<img src='img/pause.png' width='12' />";
+                console.log("Play on .....");
             }
         },
         
@@ -248,7 +250,7 @@ function runMain() {
             
         
 
-            style.radius = Math.abs(feature.properties[cityLayer.currentPercentField]) * 225 * scaleFactor;
+            style.radius = Math.sqrt(Math.abs(feature.properties[cityLayer.currentPercentField])) * 25 * scaleFactor;
         }
         
         if (map.hasLayer(countiesLayer)) {
@@ -454,6 +456,10 @@ function runMain() {
     setInterval( function () {
         if (settings.animationPlaying){
             var sliderValue = Number($("#slider")[0].value) + 0.01;
+            if (sliderValue > 6) {
+                //if the slider value is out of index then place the value back at zero
+                sliderValue = 0;
+            }
             console.log("slider value : " + sliderValue);
             settings.changeIndex(Math.floor(sliderValue));
             settings.moveSlider(sliderValue);
@@ -467,6 +473,7 @@ function runMain() {
     $("#slider").on("input", function (e){
         console.log("change slider event fired");
         settings.changeIndex(Math.floor(Number(this.value)));
+        settings.animationPlaying = false;//stop the animation from playing after the user toys with slider
         
     });
     //make the animation move according to keystrokes
