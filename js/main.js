@@ -105,7 +105,7 @@ function runMain() {
                 var rawValue = feature.properties[countiesLayer.currentRawValueField];//the raw value of the individual feature
                 
                 //construct the contents of the popup and bind the the layer
-                layer.bindPopup("<H3>" + countyName + " County: </H3> <p class='popupText'> " + percentChange + "% Change in income (originally $" + rawValue + ") </p>");
+                layer.bindPopup("<H3>" + countyName + " County: </H3> <p class='popupText'> " + percentChange + "% change in income (originally $" + rawValue + ") </p>");
         },
         
         //disables or enables the back and forward buttons depend on if the current year is the last or first year
@@ -339,7 +339,7 @@ function runMain() {
                            {style : animationStyleCounty, onEachFeature : settings.countyPopupTextConstruct},
                              ["perCh2010" ,"perCh2011", "perCh2012", "perCh2013", "perCh2014", "perCh2015", "perCh2016"],
                              ["income2010", "income2011", "income2012", "income2013", "income2014", "income2015", "income2016"],
-                             "<ul><li><div class='square' id='countyGrowing'></div> Growing Income</li> <li><div class='square' id='countyShrinking'></div> Shrinking Income </li> <li> <div class='square' id='countynochange'></div> Income no change</li>  </ul>",
+                             "<ul><li><div class='square' id='countyGrowing'></div> Growing Income</li> <li><div class='square' id='countyShrinking'></div> Shrinking Income </li> <li> <div class='square' id='countynochange'></div> Income No Change</li>  </ul>",
                              "<p id='missingData'>Income data is not avaliable for this year</p>",
                              6
                           );
@@ -411,7 +411,7 @@ function runMain() {
         var popupText;
         
         popupText = "<h3>" + feature.properties.city_name + "</h3>" +
-            "<p class='popupText'> The Percent change is " + feature.properties[cityLayer.currentPercentField] + "% and the population was " + feature.properties[cityLayer.currentRawValueField].toLocaleString() + " </p>.";
+            "<p class='popupText'> The percent change is " + feature.properties[cityLayer.currentPercentField] + "% and the population was " + feature.properties[cityLayer.currentRawValueField].toLocaleString() + " </p>.";
         
         layer.bindPopup(popupText);
     }

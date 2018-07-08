@@ -66,9 +66,14 @@ div.leaflet-popup-content-wrapper {
     color: black;
 }
 
-.leaflet-control-layers *, leaflet-control-layers-list * {
+.leaflet-control-layers *, .leaflet-control-layers-list * , .leaflet-control-layers-expanded{
     background-color: grey;
     color: black;
+    padding: 0px;
+}
+
+.leaflet-control-layers-expanded {
+    padding: 5px;
 }
 
 .leaflet-control-attribution.leaflet-control {
@@ -76,8 +81,19 @@ div.leaflet-popup-content-wrapper {
     color: black;
 }
 
-.popupText{
+.leaflet-popup-content {
+    margin: 7px;
+}
+
+.leaflet-popup-tip {
+    color: grey;
+    background-color: darkgrey;
+}
+
+p.popupText{
     color: black;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 
