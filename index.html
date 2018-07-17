@@ -2,12 +2,21 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>Template</title>
-
+		<title>AR City Growth</title>
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
 
 		<!--put your external stylesheet links here-->
-
-
+        <link rel="stylesheet" href="lib/leaflet.css"/>
+        <link rel="stylesheet" href="css/bootstrap.css"/>
+        <link rel="stylesheet" href="css/slider.css">
+        <link rel="stylesheet" href="css/style.css">
+        
+        <!--Audio tag is for the clicking sound when buttons are pressed. Needs to be an HTML tag in order to be used-->
+        <audio  autostart="false" controls id="clicksound">
+            <source src="sound/click-basic.wav" type="audio/wav">
+        </audio>
 
         
         
@@ -15,9 +24,43 @@
 
 	<body>
         
-        
+        <!-- most of body is placed inside of bootstrap container  -->
+        <div class="container-fluid">
+            <div class="row">
+                <!-- div contains the information panel which explains the map context -->
+                <div class="col-12 col-md-4 col-xl-3" id="sidepanel">
+                    <h1 title="Name of the map">Arkansas Municipal Growth Over Time and Space</h1>
+                    <p title="Description of population changes">Arkansas has seen a general trend over the past several decades. Rural areas like the Mississippi Delta are depopulating, and urban areas such as northwest and central Arkansas are gaining population. It is most commonly thought that people are moving into areas with more job opportunities and higher income. But is this really the case?
+                    </p>
+                    <p>
+                    This map animation is intended to help you explore these trends over time and space. Advance the animation to see other years and turn on the county income layer to see if median incomes increased.</p>
+                </div>
+                <!-- div which will contains the map that leaflet will reference. the size of the div is controled by bootstrap based on screen size  -->
+                <div class="col-12 col-md-8 col-xl-9" id="map"></div>
+            </div>
+            
+            <!-- div contains all of the sequence controls which change which year the map shows, it is treated as a bootstrap row. buttons are one colum and the slider is a row -->
+            <div class="row justify-content-center" id="playcontrols">
+			
+                <div class="col-7 col-sm-5 col-md-3 col-lg-3 col-xl-2" id="buttonsGroup">
+                    <button title="Click to Go back one year" id="backButton" disabled="disabled"><img width="8" src="img/forward.png" style="-webkit-transform: scaleX(-1); transform: scaleX(-1);"/></button>
+                    <button title="Click to Play Map Animation" id="playButton"><img width="10" src="img/play.png"/></button>
+                    <button title="Click to advance by one year" id="forwardButton" ><img src="img/forward.png" width="8"></button>
+                    <div class="yearControl" title="The Current Year shown in map">Year: 2010</div>
+			     </div>
+			     
+                <div class="col-5 col-sm-7 col-md-9 col-lg-9 col-xl-10" >
+                <input type="range" value="0" min="0" max="6" step="0.01" id="slider" title="drag slider to view different points in time"/>
+                </div>
+		  </div>
+        </div>
+                
+        <footer>Animation control buttons provided by the <a title="Creating, Sharing and Celebrating the World's Visual Language" href="https://thenounproject.com">Noun project</a>. The contributors are as follows, forward by creative outlet, pause by amantaka, play by Joms, and replay by Adrien Coquet. Click sound effects taken from Game Aduo UI SFC on <a title="Freesound aims to create a huge collaborative database of audio snippets, samples, recordings, bleeps, ... released under Creative Commons licenses that allow their reuse." href="freesound.org">freesound.org</a>.</footer>
 	</body>
     
         <!--put your external script links here-->
-
+        <script type="text/javascript" src="lib/jquery-3.3.1.js"></script>
+        <script type="text/javascript" src="lib/leaflet.js"></script>
+        <script type="text/javascript" src="lib/bootstrap.js"></script>
+		<script type="text/javascript" src="js/main.js"></script>
 </html>
