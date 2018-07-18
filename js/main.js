@@ -325,7 +325,7 @@ function runMain() {
         datatype : "json",
         success: function (response){
             console.log("starting to make bounds");
-            console.log(jsonString);
+            console.log(response);
             console.log("Attmpting to parse json");
             var jsonString = JSON.parse(response);
             
