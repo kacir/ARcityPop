@@ -325,7 +325,9 @@ function runMain() {
         datatype : "json",
         success: function (response){
             console.log("starting to make bounds");
-            mapOuterBounds = L.geoJSON(JSON.parse(response)).getBounds();
+            var jsonString = JSON.parse(response)
+            
+            mapOuterBounds = L.geoJSON(jsonString).getBounds();
             console.log("bounds have been made");
         }
     }).fail(function() {alert("Unable to load bouding data");});
