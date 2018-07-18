@@ -321,7 +321,7 @@ function runMain() {
     //load a bounding box dataset which decides the maximum panning area of the map.
     //it helps prevent the user from getting lost.
     var mapOuterBounds = "placeholder";//need a placholder at at higher scope so that when its created inside of the ajax function its accessible at this scope.
-    $.ajax("data/BoundingBox.geojson" , {
+    $.ajax("data/BoundingBox.json" , {
         datatype : "json",
         success: function (response){
             console.log("starting to make bounds");
@@ -335,7 +335,7 @@ function runMain() {
     
     //generate the layer object for the counties dataset
     console.log("making counties layer");
-    var countiesLayer = makeLayer("data/COUNTIES.geojson", 
+    var countiesLayer = makeLayer("data/COUNTIES.json", 
                            {style : animationStyleCounty, onEachFeature : settings.countyPopupTextConstruct},
                              ["perCh2010" ,"perCh2011", "perCh2012", "perCh2013", "perCh2014", "perCh2015", "perCh2016"],
                              ["income2010", "income2011", "income2012", "income2013", "income2014", "income2015", "income2016"],
@@ -353,7 +353,7 @@ function runMain() {
     
     //generate the city layer object
     console.log("making city layer");
-    var cityLayer = makeLayer("data/CITY.geojson",
+    var cityLayer = makeLayer("data/CITY.json",
                               {onEachFeature : bindFeaturePopup, style : animationStyleCity,
                                     pointToLayer : function (feature, latlng) {
                                     return L.circleMarker(latlng, {
@@ -418,7 +418,7 @@ function runMain() {
     
     
     //gets the city data from ajax and calls the method to start chain of adding data to map
-    $.ajax("data/CITY.geojson" , {
+    $.ajax("data/CITY.json" , {
         datatype : "json",
         success: addJSONToMap
         }).fail(function() {alert("Unable to load data");});
