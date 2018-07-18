@@ -523,4 +523,5 @@ function runMain() {
 
 
 //launches the script after the rest of the document has been loaded
-window.onload = runMain()
+console.log("Testing to see if Page works at all");
+window.onload = runMain();
