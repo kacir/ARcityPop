@@ -16,8 +16,7 @@ function runMain() {
                 datatype : "json",
                 success: function (response) {
                     console.log("about to load ajax data into Geojson layer");
-                    var parsed = JSON.parse(response);
-                    layerGroup.addData(parsed);
+                    layerGroup.addData(response);
                     console.log("successfully added data into layer");
                 }
             }).fail(function() {alert("Unable to load data");});
@@ -327,11 +326,8 @@ function runMain() {
             console.log("starting to make bounds");
             console.log("Check to see if changes are taking");
             console.log(response);
-            console.log("Attmpting to parse json");
-            var jsonString = JSON.parse(response);
-            
-            
-            mapOuterBounds = L.geoJSON(jsonString).getBounds();
+            console.log("Attempting to genereate geoJson Layer");
+            mapOuterBounds = L.geoJSON(response).getBounds();
             console.log("bounds have been made");
         }
     }).fail(function() {alert("Unable to load bouding data");});
@@ -406,7 +402,7 @@ function runMain() {
     
     //defining function that will add data into the json layer after the layer has been formed
     function addJSONToMap(response) {
-        cityLayer.addData(JSON.parse(response));
+        cityLayer.addData(response);
         map.fitBounds(cityLayer.getBounds());//zoom to maxium extent of layer which is Arkansas
     }
     
